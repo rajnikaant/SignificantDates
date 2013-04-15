@@ -13,6 +13,12 @@
 #import "Holiday.h"
 #import "Birthday.h"
 #import "SDSyncEngine.h"
+#import "Chapter.h"
+#import "Progress.h"
+#import "Player.h"
+
+static int sliderTagPrefix = 1000;
+static int labelTagPrefix = 2000;
 
 @interface SDDateTableViewController ()
 
@@ -27,7 +33,9 @@
 
 @synthesize entityName;
 @synthesize refreshButton;
-@synthesize dates;
+@synthesize chapters;
+@synthesize progresses;
+@synthesize defaultPlayer;
 
 - (id)initWithStyle:(UITableViewStyle)style
 {
@@ -41,11 +49,23 @@
 - (void)loadRecordsFromCoreData {
     [self.managedObjectContext performBlockAndWait:^{
         [self.managedObjectContext reset];
-        NSError *error = nil;
-        NSFetchRequest *request = [[NSFetchRequest alloc] initWithEntityName:self.entityName];
-        [request setSortDescriptors:[NSArray arrayWithObject:
-                                     [NSSortDescriptor sortDescriptorWithKey:@"date" ascending:YES]]];
-        self.dates = [self.managedObjectContext executeFetchRequest:request error:&error];
+        //load all chapters
+        self.chapters = [Chapter findAllWithPredicate:nil
+                                      sortDescriptors:nil
+                                                limit:-1
+                                            inContext:self.managedObjectContext];
+        
+        //load default player
+        self.defaultPlayer = (Player*)[Player findFirstWithPredicate:nil
+                                            sortDescriptors:nil
+                                                  inContext:self.managedObjectContext];
+        
+        //load all progress for player
+        NSPredicate *pred = [NSPredicate predicateWithFormat:@"player = %@", self.defaultPlayer];
+        self.progresses = [Progress findAllWithPredicate:pred
+                                         sortDescriptors:nil
+                                                   limit:-1
+                                               inContext:self.managedObjectContext];
     }];
 }
 
@@ -89,23 +109,23 @@
     return YES;
 }
 
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        NSManagedObject *date = [self.dates objectAtIndex:indexPath.row];
-        [self.managedObjectContext performBlockAndWait:^{
-            [self.managedObjectContext deleteObject:date];
-            NSError *error = nil;
-            BOOL saved = [self.managedObjectContext save:&error];
-            if (!saved) {
-                NSLog(@"Error saving main context: %@", error);
-            }
-            
-            [[SDCoreDataController sharedInstance] saveMasterContext];
-            [self loadRecordsFromCoreData];
-            [self.tableView reloadData];
-        }];
-    }
-}
+//- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+//    if (editingStyle == UITableViewCellEditingStyleDelete) {
+//        NSManagedObject *date = [self.dates objectAtIndex:indexPath.row];
+//        [self.managedObjectContext performBlockAndWait:^{
+//            [self.managedObjectContext deleteObject:date];
+//            NSError *error = nil;
+//            BOOL saved = [self.managedObjectContext save:&error];
+//            if (!saved) {
+//                NSLog(@"Error saving main context: %@", error);
+//            }
+//            
+//            [[SDCoreDataController sharedInstance] saveMasterContext];
+//            [self loadRecordsFromCoreData];
+//            [self.tableView reloadData];
+//        }];
+//    }
+//}
 
 #pragma mark - Table view data source
 
@@ -118,62 +138,68 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
-    return [self.dates count];
+    return [self.chapters count];
+}
+
+-(Progress*)getProgressForChapter:(Chapter*)chapter {
+    NSPredicate *pred = [NSPredicate predicateWithFormat:@"chapter = %@", chapter];
+    NSArray *filteredProgresses = [self.progresses filteredArrayUsingPredicate:pred];
+    if ([filteredProgresses count] > 0) {
+        return (Progress*)[filteredProgresses objectAtIndex:0];
+    }
+    
+    return nil;
+}
+
+-(void)updateProgress:(int)progress forChapterAtIndex:(int)chapIndex {
+    //update the progress in memory so the rendering is correct the next time
+    Chapter *chapter = [self.chapters objectAtIndex:chapIndex];
+    Progress *prog = [self getProgressForChapter:chapter];
+    prog.percent = [NSNumber numberWithInt:progress];
+    
+    //update the label text
+    int labelTag = labelTagPrefix + chapIndex;
+    UILabel *percentLabel = (UILabel*)[self.view viewWithTag:labelTag];
+    percentLabel.text = [NSString stringWithFormat:@"%i%%", progress];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     SDTableViewCell *cell = nil;
     
-    if ([self.entityName isEqualToString:@"Holiday"]) {
-        static NSString *CellIdentifier = @"HolidayCell";
-        cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-        
-        Holiday *holiday = [self.dates objectAtIndex:indexPath.row];
-        cell.nameLabel.text = holiday.name;
-        cell.dateLabel.text = [self.dateFormatter stringFromDate:holiday.date];
-        if (holiday.image != nil) {
-            UIImage *image = [UIImage imageWithData:holiday.image];
-            cell.imageView.image = image;
-        } else {
-            cell.imageView.image = nil;
-        }
-    } else { // Birthday
-        static NSString *CellIdentifier = @"BirthdayCell";
-        cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-        
-        Birthday *birthday = [self.dates objectAtIndex:indexPath.row];
-        cell.nameLabel.text = birthday.name;
-        cell.dateLabel.text = [self.dateFormatter stringFromDate:birthday.date];
-        if (birthday.image != nil) {
-            UIImage *image = [UIImage imageWithData:birthday.image];
-            cell.imageView.image = image;
-        } else {
-            cell.imageView.image = nil;
-        }
-    }
+    static NSString *CellIdentifier = @"ChapterCell";
+    cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     
+    Chapter *chapter = [self.chapters objectAtIndex:indexPath.row];
+    cell.chapNameLabel.text = chapter.name;
+
+    Progress *chapProg = [self getProgressForChapter:chapter];
+    cell.percentLabel.text = [NSString stringWithFormat:@"%@%%", [chapProg.percent stringValue]];
+    cell.percentLabel.tag = labelTagPrefix + [self.chapters indexOfObject:chapter];
+    
+    cell.chapProgressView.value = [chapProg.percent intValue];
+    cell.chapProgressView.tag = sliderTagPrefix + [self.chapters indexOfObject:chapter];
     
     return cell;
 }
 
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    if ([segue.identifier isEqualToString:@"ShowDateDetailViewSegue"]) {
-        SDDateDetailViewController *dateDetailViewController = segue.destinationViewController;
-        SDTableViewCell *cell = (SDTableViewCell *)sender;
-        NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
-        Holiday *holiday = [self.dates objectAtIndex:indexPath.row];
-        dateDetailViewController.managedObjectId = holiday.objectID;
-        
-    } else if ([segue.identifier isEqualToString:@"ShowAddDateViewSegue"]) {
-        SDAddDateViewController *addDateViewController = segue.destinationViewController;
-        [addDateViewController setAddDateCompletionBlock:^{
-            [self loadRecordsFromCoreData]; 
-            [self.tableView reloadData];
-        }];
-        
-    }
-}
+//- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+//    if ([segue.identifier isEqualToString:@"ShowDateDetailViewSegue"]) {
+//        SDDateDetailViewController *dateDetailViewController = segue.destinationViewController;
+//        SDTableViewCell *cell = (SDTableViewCell *)sender;
+//        NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
+//        Holiday *holiday = [self.dates objectAtIndex:indexPath.row];
+//        dateDetailViewController.managedObjectId = holiday.objectID;
+//        
+//    } else if ([segue.identifier isEqualToString:@"ShowAddDateViewSegue"]) {
+//        SDAddDateViewController *addDateViewController = segue.destinationViewController;
+//        [addDateViewController setAddDateCompletionBlock:^{
+//            [self loadRecordsFromCoreData]; 
+//            [self.tableView reloadData];
+//        }];
+//        
+//    }
+//}
 
 - (void)viewDidUnload {
     [self setRefreshButton:nil];
@@ -211,4 +237,19 @@
     }
 }
 
+- (IBAction)sliderMoved:(UISlider *)slider {
+    int chapIndex = slider.tag - sliderTagPrefix;
+    int sliderValue = [[NSNumber numberWithFloat:slider.value] intValue];
+    [self updateProgress:sliderValue forChapterAtIndex:chapIndex];
+    
+    [self.managedObjectContext performBlockAndWait:^{
+        NSError *error = nil;
+        BOOL saved = [self.managedObjectContext save:&error];
+        if (!saved) {
+            // do some real error handling
+            NSLog(@"Could not save Date due to %@", error);
+        }
+        [[SDCoreDataController sharedInstance] saveMasterContext];
+    }];
+}
 @end

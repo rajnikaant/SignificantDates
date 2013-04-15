@@ -80,4 +80,42 @@
     }];
 }
 
+
++ (NSArray*)findAllWithPredicate:(NSPredicate*)predicate sortDescriptors:(NSMutableArray*)sortDescriptors limit:(int)limit inContext:(NSManagedObjectContext *)givenMoc {
+    NSManagedObjectContext *moc = givenMoc;
+    if (!moc) {
+        moc = [[SDCoreDataController sharedInstance] newManagedObjectContext];
+    }
+    
+    NSError *error;
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    NSEntityDescription *entity = [NSEntityDescription
+                                   entityForName:[self entityName] inManagedObjectContext:moc];
+    
+    if(predicate) {
+        [fetchRequest setPredicate:predicate];
+    }
+    
+    if (sortDescriptors) {
+        [fetchRequest setSortDescriptors:sortDescriptors];
+    }
+    
+    [fetchRequest setEntity:entity];
+    if (limit > 0) {
+        [fetchRequest setFetchLimit:limit];
+    }
+    
+    // Preloading should only happen if there is no filter query and no limit.
+    return [moc executeFetchRequest:fetchRequest error:&error];
+}
+
++ (NSManagedObject*)findFirstWithPredicate:(NSPredicate*)predicate sortDescriptors:(NSMutableArray*)sortDescriptors inContext:(NSManagedObjectContext *)givenMoc {
+    NSArray *results = [self findAllWithPredicate:predicate sortDescriptors:sortDescriptors limit:1 inContext:givenMoc];
+    if ([results count] > 0){
+        return [results objectAtIndex:0];
+    } else {
+        return nil;
+    }
+}
+
 @end

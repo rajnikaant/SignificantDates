@@ -86,6 +86,7 @@ NSString * const kSDSyncEngineSyncDefaultSyncEntryAdded = @"SDSyncEngineSyncDefa
         [self loadWriteId];
     }
     
+    [standardDefaults setValue:@"YES" forKey:kSDSyncEngineSyncDefaultSyncEntryAdded];
     //Holiday Names
     
 }
