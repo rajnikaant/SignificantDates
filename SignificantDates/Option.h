@@ -8,9 +8,10 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
+#import "BaseModel.h"
 
 
-@interface Option : NSManagedObject
+@interface Option : BaseModel
 
 @property (nonatomic, retain) NSString * key;
 @property (nonatomic, retain) NSString * value;

@@ -9,8 +9,6 @@
 #import "Option.h"
 #import "SDCoreDataController.h"
 
-static NSString *entityName = @"Option";
-
 @implementation Option
 
 @dynamic key;
@@ -18,29 +16,21 @@ static NSString *entityName = @"Option";
 @dynamic updatedAt;
 @dynamic writeId;
 
+
++(NSString*)entityName {
+    return @"Option";
+}
+
 + (void)createWithKey:(NSString*)key andValue:(NSString*)value {
-    NSManagedObjectContext *moc = [[SDCoreDataController sharedInstance] newManagedObjectContext];
-    NSManagedObject *option = [NSEntityDescription insertNewObjectForEntityForName:entityName
-                                                            inManagedObjectContext:moc];
+    NSMutableDictionary *option = [NSMutableDictionary dictionary];
     [option setValue:key forKey:@"key"];
     [option setValue:value forKey:@"value"];
-    [option setValue:[[SDCoreDataController sharedInstance] writeId] forKey:@"writeId"];
-    [option setValue:[NSDate dateWithTimeIntervalSinceNow:0] forKey:@"updatedAt"];
     
-    
-    [moc performBlockAndWait:^{
-        NSError *error = nil;
-        BOOL saved = [moc save:&error];
-        if (!saved) {
-            // do some real error handling
-            NSLog(@"Could not save Date due to %@", error);
-        }
-        [[SDCoreDataController sharedInstance] saveMasterContext];
-    }];
+    [self createWithDictionary:option inContext:NULL];
 }
 
 + (void)createWithKeys:(NSArray*)keys andValues:(NSArray*)values {
-    NSManagedObjectContext *moc = [[SDCoreDataController sharedInstance] newManagedObjectContext];
+    NSMutableArray *dicts = [NSMutableArray array];
     
     for (NSString *key in keys) {
         //get the value corresponding to the key
@@ -48,25 +38,14 @@ static NSString *entityName = @"Option";
         NSString *value = [values objectAtIndex:index];
         
         //make the option in managed context
-        NSManagedObject *option = [NSEntityDescription insertNewObjectForEntityForName:entityName
-                                                                inManagedObjectContext:moc];
+        NSMutableDictionary *option = [NSMutableDictionary dictionary];
         [option setValue:key forKey:@"key"];
         [option setValue:value forKey:@"value"];
-        [option setValue:[[SDCoreDataController sharedInstance] writeId] forKey:@"writeId"];
-        [option setValue:[NSDate dateWithTimeIntervalSinceNow:0] forKey:@"updatedAt"];
+        
+        [dicts addObject:option];
     }
-    
-    
-    
-    [moc performBlockAndWait:^{
-        NSError *error = nil;
-        BOOL saved = [moc save:&error];
-        if (!saved) {
-            // do some real error handling
-            NSLog(@"Could not save Date due to %@", error);
-        }
-        [[SDCoreDataController sharedInstance] saveMasterContext];
-    }];
+
+    [self createWithDictionaries:dicts inContext:NULL];
 }
 
 + (Option*)findWithKey:(NSString*)key {
@@ -75,7 +54,7 @@ static NSString *entityName = @"Option";
 
 + (NSArray*)findAllWithKey:(NSString*)key {
     __block NSArray *results = nil;
-    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:entityName];
+    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:[self entityName]];
     [request setSortDescriptors:[NSArray arrayWithObject:
                                  [NSSortDescriptor sortDescriptorWithKey:@"updatedAt" ascending:NO]]];
     [request setFetchLimit:1];

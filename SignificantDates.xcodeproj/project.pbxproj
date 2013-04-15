@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5A5B3243171BD547003E2B6B /* Progress.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A5B3242171BD547003E2B6B /* Progress.m */; };
+		5A5B3246171BD548003E2B6B /* Chapter.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A5B3245171BD547003E2B6B /* Chapter.m */; };
+		5A5B3249171BD548003E2B6B /* Player.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A5B3248171BD548003E2B6B /* Player.m */; };
+		5A5B324C171BD5AE003E2B6B /* BaseModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A5B324B171BD5AE003E2B6B /* BaseModel.m */; };
 		5AEA834617141B5B004F4C32 /* Option.m in Sources */ = {isa = PBXBuildFile; fileRef = 5AEA834517141B5B004F4C32 /* Option.m */; };
 		5F0A9BE31585D2C300746CB0 /* SDDateTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F0A9BE21585D2C300746CB0 /* SDDateTableViewController.m */; };
 		5F0A9BE41585D2C300746CB0 /* SDDateTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F0A9BE21585D2C300746CB0 /* SDDateTableViewController.m */; };
@@ -74,6 +78,14 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		5A5B3241171BD547003E2B6B /* Progress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Progress.h; sourceTree = "<group>"; };
+		5A5B3242171BD547003E2B6B /* Progress.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Progress.m; sourceTree = "<group>"; };
+		5A5B3244171BD547003E2B6B /* Chapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Chapter.h; sourceTree = "<group>"; };
+		5A5B3245171BD547003E2B6B /* Chapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Chapter.m; sourceTree = "<group>"; };
+		5A5B3247171BD548003E2B6B /* Player.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Player.h; sourceTree = "<group>"; };
+		5A5B3248171BD548003E2B6B /* Player.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Player.m; sourceTree = "<group>"; };
+		5A5B324A171BD5AE003E2B6B /* BaseModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BaseModel.h; sourceTree = "<group>"; };
+		5A5B324B171BD5AE003E2B6B /* BaseModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BaseModel.m; sourceTree = "<group>"; };
 		5AEA834417141B5B004F4C32 /* Option.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Option.h; sourceTree = "<group>"; };
 		5AEA834517141B5B004F4C32 /* Option.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Option.m; sourceTree = "<group>"; };
 		5F0A9BE11585D2C200746CB0 /* SDDateTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDDateTableViewController.h; sourceTree = "<group>"; };
@@ -260,6 +272,14 @@
 				5F0A9BE61585DAA100746CB0 /* Birthday.m */,
 				5AEA834417141B5B004F4C32 /* Option.h */,
 				5AEA834517141B5B004F4C32 /* Option.m */,
+				5A5B3247171BD548003E2B6B /* Player.h */,
+				5A5B3248171BD548003E2B6B /* Player.m */,
+				5A5B3244171BD547003E2B6B /* Chapter.h */,
+				5A5B3245171BD547003E2B6B /* Chapter.m */,
+				5A5B3241171BD547003E2B6B /* Progress.h */,
+				5A5B3242171BD547003E2B6B /* Progress.m */,
+				5A5B324A171BD5AE003E2B6B /* BaseModel.h */,
+				5A5B324B171BD5AE003E2B6B /* BaseModel.m */,
 			);
 			name = Models;
 			sourceTree = "<group>";
@@ -424,6 +444,10 @@
 				5FA98E7615A0390600209C26 /* SDAFParseAPIClient.m in Sources */,
 				5FA98E7B15A03CE800209C26 /* SDSyncEngine.m in Sources */,
 				5AEA834617141B5B004F4C32 /* Option.m in Sources */,
+				5A5B3243171BD547003E2B6B /* Progress.m in Sources */,
+				5A5B3246171BD548003E2B6B /* Chapter.m in Sources */,
+				5A5B3249171BD548003E2B6B /* Player.m in Sources */,
+				5A5B324C171BD5AE003E2B6B /* BaseModel.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

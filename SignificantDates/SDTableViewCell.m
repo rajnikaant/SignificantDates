@@ -8,7 +8,9 @@
 #import "SDTableViewCell.h"
 
 @implementation SDTableViewCell
-@synthesize imageView;
+@synthesize chapNameLabel;
+@synthesize percentLabel;
+@synthesize chapProgressView;
 @synthesize nameLabel;
 @synthesize dateLabel;
 

@@ -43,7 +43,7 @@
             </objects>
             <point key="canvasLocation" x="1222" y="-98"/>
         </scene>
-        <!--Date Table View Controller - Holidays-->
+        <!--Date Table View Controller - Chapters-->
         <scene sceneID="204-Fk-OT3">
             <objects>
                 <tableViewController id="kRC-1c-E1k" customClass="SDDateTableViewController" sceneMemberID="viewController">
@@ -52,38 +52,38 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
-                            <tableViewCell contentMode="scaleToFill" selectionStyle="blue" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="HolidayCell" rowHeight="75" id="EXu-dB-AIY" customClass="SDTableViewCell">
+                            <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="HolidayCell" rowHeight="75" id="EXu-dB-AIY" customClass="SDTableViewCell">
                                 <rect key="frame" x="0.0" y="22" width="320" height="75"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
-                                    <rect key="frame" x="0.0" y="0.0" width="300" height="74"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="320" height="74"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Christmas" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="10" id="xqL-YU-nfu">
-                                            <rect key="frame" x="88" y="14" width="165" height="21"/>
+                                            <rect key="frame" x="20" y="9" width="165" height="21"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                             <color key="highlightedColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         </label>
-                                        <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" id="jdb-T0-kAQ">
-                                            <rect key="frame" x="20" y="7" width="60" height="60"/>
+                                        <progressView opaque="NO" contentMode="scaleToFill" progress="0.5" id="5We-4r-FGu">
+                                            <rect key="frame" x="20" y="45" width="251" height="9"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        </imageView>
-                                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="12/31/12" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="10" id="zIs-AB-Qam">
-                                            <rect key="frame" x="88" y="38" width="165" height="21"/>
+                                        </progressView>
+                                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="89%" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="wMP-39-KEd">
+                                            <rect key="frame" x="229" y="9" width="35" height="21"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                            <color key="textColor" red="0.19973692602040816" green="0.19973692602040816" blue="0.19973692602040816" alpha="1" colorSpace="calibratedRGB"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                            <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                             <color key="highlightedColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         </label>
                                     </subviews>
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 </view>
                                 <connections>
-                                    <outlet property="dateLabel" destination="zIs-AB-Qam" id="LJS-5F-gf9"/>
-                                    <outlet property="imageView" destination="jdb-T0-kAQ" id="nO1-Vv-a4E"/>
-                                    <outlet property="nameLabel" destination="xqL-YU-nfu" id="3y1-Gd-FJn"/>
+                                    <outlet property="chapNameLabel" destination="xqL-YU-nfu" id="yno-xx-1Kt"/>
+                                    <outlet property="chapProgressView" destination="5We-4r-FGu" id="Bdb-eU-lvP"/>
+                                    <outlet property="percentLabel" destination="wMP-39-KEd" id="nmC-oi-0U6"/>
                                     <segue destination="gir-T6-VE0" kind="push" identifier="ShowDateDetailViewSegue" id="X1C-wp-Hj0"/>
                                 </connections>
                             </tableViewCell>
@@ -94,7 +94,7 @@
                             <outlet property="delegate" destination="kRC-1c-E1k" id="BCR-0j-lJK"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Holidays" id="dbn-bt-enq">
+                    <navigationItem key="navigationItem" title="Chapters" id="dbn-bt-enq">
                         <barButtonItem key="leftBarButtonItem" systemItem="refresh" id="9nL-jv-hM6">
                             <connections>
                                 <action selector="refreshButtonTouched:" destination="kRC-1c-E1k" id="HOg-fZ-7R4"/>
@@ -589,9 +589,11 @@ AQABAAEAAQAB//+dkAEA//+PgAAE//+dkAEI//+dkAEMUERUAFBTVABQV1QAUFBUAAAAAAEAAAABA
         <class className="SDTableViewCell" superclassName="UITableViewCell">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/SDTableViewCell.h"/>
             <relationships>
+                <relationship kind="outlet" name="chapNameLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="chapProgressView" candidateClass="UIProgressView"/>
                 <relationship kind="outlet" name="dateLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="imageView" candidateClass="UIImageView"/>
                 <relationship kind="outlet" name="nameLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="percentLabel" candidateClass="UILabel"/>
             </relationships>
         </class>
     </classes>
