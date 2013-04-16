@@ -18,7 +18,7 @@ typedef enum {
 + (SDSyncEngine *)sharedEngine;
 - (void)registerNSManagedObjectClassToSync:(Class)aClass;
 - (void)startSync;
-- (void) setSeedData;
+- (void)setSeedData;
 - (void)loadWriteId;
 
 @end

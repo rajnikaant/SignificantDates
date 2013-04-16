@@ -11,7 +11,7 @@
 
 @property (atomic, retain) NSNumber *writeId;
 
-+ (id)sharedInstance;
++ (SDCoreDataController*)sharedInstance;
 
 - (NSURL *)applicationDocumentsDirectory;
 
@@ -22,5 +22,7 @@
 - (void)saveBackgroundContext;
 - (NSManagedObjectModel *)managedObjectModel;
 - (NSPersistentStoreCoordinator *)persistentStoreCoordinator;
+
+-(void)incrementWriteId;
 
 @end

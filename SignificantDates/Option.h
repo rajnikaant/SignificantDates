@@ -22,4 +22,5 @@
 + (void)createWithKeys:(NSArray*)key andValues:(NSArray*)values;
 + (Option*)findWithKey:(NSString*)key;
 + (NSArray*)findAllWithKey:(NSString*)key;
++ (void)setValue:(id)value forKey:(NSString*)key;
 @end

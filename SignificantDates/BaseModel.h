@@ -19,5 +19,6 @@
 //find
 + (NSArray*)findAllWithPredicate:(NSPredicate*)predicate sortDescriptors:(NSMutableArray*)sortDescriptors limit:(int)limit  inContext:(NSManagedObjectContext*)givenMoc;
 + (NSManagedObject*)findFirstWithPredicate:(NSPredicate*)predicate sortDescriptors:(NSMutableArray*)sortDescriptors  inContext:(NSManagedObjectContext*)givenMoc;
++ (NSArray*)getUpdatedRecordsForClass:(NSString*)className tillWriteId:(int)currentWriteId;
 
 @end

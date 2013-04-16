@@ -7,8 +7,9 @@
 
 #import "SDAppDelegate.h"
 #import "SDSyncEngine.h"
-#import "Holiday.h"
-#import "Birthday.h"
+#import "Progress.h"
+#import "Chapter.h"
+#import "Player.h"
 
 @implementation SDAppDelegate
 
@@ -18,8 +19,9 @@
 {
     SDSyncEngine *sharedEngine = [SDSyncEngine sharedEngine];
     
-    [sharedEngine registerNSManagedObjectClassToSync:[Holiday class]];
-    [sharedEngine registerNSManagedObjectClassToSync:[Birthday class]];
+    [sharedEngine registerNSManagedObjectClassToSync:[Progress class]];
+    [sharedEngine registerNSManagedObjectClassToSync:[Player class]];
+    [sharedEngine registerNSManagedObjectClassToSync:[Chapter class]];
     [sharedEngine setSeedData];
     [sharedEngine loadWriteId];
     return YES;

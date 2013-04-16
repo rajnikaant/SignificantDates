@@ -13,6 +13,7 @@
 #import "Chapter.h"
 #import "Player.h"
 #import "Progress.h"
+#import "Constants.h"
 
 NSString * const kSDSyncEngineInitialCompleteKey = @"SDSyncEngineInitialSyncCompleted";
 NSString * const kSDSyncEngineSyncCompletedNotificationName = @"SDSyncEngineSyncCompleted";
@@ -22,12 +23,14 @@ NSString * const kSDSyncEngineSyncDefaultSyncEntryAdded = @"SDSyncEngineSyncDefa
 
 @property (nonatomic, strong) NSMutableArray *registeredClassesToSync;
 @property (nonatomic, strong) NSDateFormatter *dateFormatter;
+@property (nonatomic) int currentSyncWriteId;
 
 @end
 
 @implementation SDSyncEngine
 
 @synthesize syncInProgress = _syncInProgress;
+@synthesize currentSyncWriteId;
 
 @synthesize registeredClassesToSync = _registeredClassesToSync;
 @synthesize dateFormatter = _dateFormatter;
@@ -53,7 +56,7 @@ NSString * const kSDSyncEngineSyncDefaultSyncEntryAdded = @"SDSyncEngineSyncDefa
     BOOL defaultEntryAdded = [[standardDefaults valueForKey:kSDSyncEngineSyncDefaultSyncEntryAdded] boolValue];
     if (!defaultEntryAdded) {
         [[SDCoreDataController sharedInstance] setWriteId:[NSNumber numberWithInt:0]];
-        NSArray *keys = [NSArray arrayWithObjects:@"dataSent", @"writeId", nil];
+        NSArray *keys = [NSArray arrayWithObjects:DBDataSentKey, DBWriteIdKey, nil];
         NSArray *values = [NSArray arrayWithObjects:@"0", @"1", nil];
         [Option createWithKeys:keys andValues:values];
         
@@ -91,6 +94,33 @@ NSString * const kSDSyncEngineSyncDefaultSyncEntryAdded = @"SDSyncEngineSyncDefa
     
 }
 
+- (void)sendDataForRegisteredObjects {
+    //store the current writeId
+    int currentWriteId = [[SDCoreDataController sharedInstance].writeId intValue];
+    self.currentSyncWriteId = currentWriteId;
+    
+    //increment the writeId
+    [[SDCoreDataController sharedInstance] incrementWriteId];
+    
+    //get the updated list of objects since the last dataSent
+    NSDictionary *updatedRecords = [self getUpdatedRecordsSinceLastDataSentTillWriteId:currentWriteId];
+
+    
+    NSLog(@"updated records = %@",[updatedRecords description]);
+    
+    [self executeSyncCompletedOperations];
+ }
+
+-(NSDictionary*)getUpdatedRecordsSinceLastDataSentTillWriteId:(int)currentWriteId {
+    NSMutableDictionary *updatedRecords = [NSMutableDictionary dictionary];
+    for (NSString *className in self.registeredClassesToSync) {
+        NSArray *updatedRecordsForClass = [BaseModel getUpdatedRecordsForClass:className tillWriteId:currentWriteId];
+        if ([updatedRecordsForClass count] > 0)
+            [updatedRecords setValue:updatedRecordsForClass forKey:className];
+    }
+    return updatedRecords;
+}
+
 - (void)registerNSManagedObjectClassToSync:(Class)aClass {
     if (!self.registeredClassesToSync) {
         self.registeredClassesToSync = [NSMutableArray array];
@@ -113,13 +143,18 @@ NSString * const kSDSyncEngineSyncDefaultSyncEntryAdded = @"SDSyncEngineSyncDefa
         _syncInProgress = YES;
         [self didChangeValueForKey:@"syncInProgress"];
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-            [self downloadDataForRegisteredObjects:YES];
+            //[self downloadDataForRegisteredObjects:YES];
+            [self sendDataForRegisteredObjects];
         });
     }
 }
 
 - (void)executeSyncCompletedOperations {
     dispatch_async(dispatch_get_main_queue(), ^{
+        
+        [Option setValue:[[NSNumber numberWithInt:self.currentSyncWriteId] stringValue] forKey:DBDataSentKey];
+        self.currentSyncWriteId = -1;
+        
         [self setInitialSyncCompleted];
         NSError *error = nil;
         [[SDCoreDataController sharedInstance] saveBackgroundContext];
@@ -128,9 +163,7 @@ NSString * const kSDSyncEngineSyncDefaultSyncEntryAdded = @"SDSyncEngineSyncDefa
         }
         
         [[SDCoreDataController sharedInstance] saveMasterContext];
-        [[NSNotificationCenter defaultCenter] 
-         postNotificationName:kSDSyncEngineSyncCompletedNotificationName 
-         object:nil];
+        [[NSNotificationCenter defaultCenter] postNotificationName:kSDSyncEngineSyncCompletedNotificationName object:nil];
         [self willChangeValueForKey:@"syncInProgress"];
         _syncInProgress = NO;
         [self didChangeValueForKey:@"syncInProgress"];
@@ -163,6 +196,8 @@ NSString * const kSDSyncEngineSyncDefaultSyncEntryAdded = @"SDSyncEngineSyncDefa
     
     return date;
 }
+
+
 
 - (void)downloadDataForRegisteredObjects:(BOOL)useUpdatedAtDate {
     NSMutableArray *operations = [NSMutableArray array];

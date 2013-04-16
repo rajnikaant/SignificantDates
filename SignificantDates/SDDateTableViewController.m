@@ -16,6 +16,7 @@
 #import "Chapter.h"
 #import "Progress.h"
 #import "Player.h"
+#import "Constants.h"
 
 static int sliderTagPrefix = 1000;
 static int labelTagPrefix = 2000;
@@ -87,7 +88,7 @@ static int labelTagPrefix = 2000;
     
     [self checkSyncStatus];
     
-    [[NSNotificationCenter defaultCenter] addObserverForName:@"SDSyncEngineSyncCompleted" object:nil queue:nil usingBlock:^(NSNotification *note) {
+    [[NSNotificationCenter defaultCenter] addObserverForName:SyncCompletedNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         [self loadRecordsFromCoreData];
         [self.tableView reloadData];
     }];
@@ -96,7 +97,7 @@ static int labelTagPrefix = 2000;
 
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"SDSyncEngineSyncCompleted" object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:SyncCompletedNotification object:nil];
     [[SDSyncEngine sharedEngine] removeObserver:self forKeyPath:@"syncInProgress"];
 }
 
@@ -156,6 +157,7 @@ static int labelTagPrefix = 2000;
     Chapter *chapter = [self.chapters objectAtIndex:chapIndex];
     Progress *prog = [self getProgressForChapter:chapter];
     prog.percent = [NSNumber numberWithInt:progress];
+    prog.writeId = [SDCoreDataController sharedInstance].writeId;
     
     //update the label text
     int labelTag = labelTagPrefix + chapIndex;

@@ -6,6 +6,8 @@
 //
 
 #import "SDCoreDataController.h"
+#import "Option.h"
+#import "Constants.h"
 
 @interface SDCoreDataController ()
 
@@ -32,6 +34,13 @@
     });
     
     return sharedInstance;
+}
+
+-(void)incrementWriteId {
+    int currentWriteId = [self.writeId intValue];
+    NSNumber *newValue = [NSNumber numberWithInt:(currentWriteId + 1)];
+    [Option setValue:[newValue stringValue] forKey:DBWriteIdKey];
+    self.writeId = newValue;
 }
 
 #pragma mark - Core Data stack

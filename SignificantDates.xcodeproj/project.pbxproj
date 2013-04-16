@@ -86,6 +86,7 @@
 		5A5B3248171BD548003E2B6B /* Player.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Player.m; sourceTree = "<group>"; };
 		5A5B324A171BD5AE003E2B6B /* BaseModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BaseModel.h; sourceTree = "<group>"; };
 		5A5B324B171BD5AE003E2B6B /* BaseModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BaseModel.m; sourceTree = "<group>"; };
+		5A5B3256171D62F0003E2B6B /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
 		5AEA834417141B5B004F4C32 /* Option.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Option.h; sourceTree = "<group>"; };
 		5AEA834517141B5B004F4C32 /* Option.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Option.m; sourceTree = "<group>"; };
 		5F0A9BE11585D2C200746CB0 /* SDDateTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDDateTableViewController.h; sourceTree = "<group>"; };
@@ -229,6 +230,7 @@
 				5FA98E7515A0390600209C26 /* SDAFParseAPIClient.m */,
 				5FA98E7915A03CE800209C26 /* SDSyncEngine.h */,
 				5FA98E7A15A03CE800209C26 /* SDSyncEngine.m */,
+				5A5B3256171D62F0003E2B6B /* Constants.h */,
 			);
 			path = SignificantDates;
 			sourceTree = "<group>";
