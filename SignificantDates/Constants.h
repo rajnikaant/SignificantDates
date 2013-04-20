@@ -12,5 +12,8 @@
 #define DBWriteIdKey @"writeId"
 #define DBDataSentKey @"dataSent"
 #define SyncCompletedNotification @"SDSyncEngineSyncCompleted"
+#define kAccountCreateFailedNotification @"AccountCreateFailedNotification"
+#define kAccountCreateSuccessNotification @"AccountCreateSuccessNotification"
+#define kReloadAccountTableNotification @"ReloadAccountTableNotification"
 
 #endif

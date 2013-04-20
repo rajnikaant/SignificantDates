@@ -16,6 +16,7 @@
 @dynamic player;
 @dynamic updatedAt;
 @dynamic writeId;
+@dynamic account;
 
 +(NSString*)entityName {
     return @"Progress";

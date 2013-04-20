@@ -10,13 +10,14 @@
 #import <CoreData/CoreData.h>
 #import "BaseModel.h"
 
-@class Progress;
+@class Progress, Account;
 
 @interface Player : BaseModel
 
 @property (nonatomic, retain) NSString * name;
 @property (nonatomic, retain) Progress *progress;
 @property (nonatomic, retain) NSDate * updatedAt;
-@property (nonatomic, retain) NSNumber * writeId;
+@property (nonatomic, retain) NSNumber *writeId;
+@property (nonatomic, retain) Account *account;
 
 @end

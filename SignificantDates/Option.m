@@ -15,6 +15,7 @@
 @dynamic value;
 @dynamic updatedAt;
 @dynamic writeId;
+@dynamic account;
 
 
 +(NSString*)entityName {

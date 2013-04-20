@@ -14,10 +14,12 @@
 #import "Player.h"
 #import "Progress.h"
 #import "Constants.h"
+#import "Account.h"
 
 NSString * const kSDSyncEngineInitialCompleteKey = @"SDSyncEngineInitialSyncCompleted";
 NSString * const kSDSyncEngineSyncCompletedNotificationName = @"SDSyncEngineSyncCompleted";
 NSString * const kSDSyncEngineSyncDefaultSyncEntryAdded = @"SDSyncEngineSyncDefaultSync";
+
 
 @interface SDSyncEngine ()
 
@@ -149,6 +151,29 @@ NSString * const kSDSyncEngineSyncDefaultSyncEntryAdded = @"SDSyncEngineSyncDefa
     }
 }
 
+- (void)createAccountWithEmail:(NSString*)email {
+    //only one account will be created at one time
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        NSMutableURLRequest *request = [[SDAFParseAPIClient sharedClient] POSTRequestForAccountCreateWithEmail:email];
+        AFHTTPRequestOperation *operation =
+            [[SDAFParseAPIClient sharedClient]
+                HTTPRequestOperationWithRequest:request
+                success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                    [Account createWithParams:responseObject];
+                    [[NSNotificationCenter defaultCenter] postNotificationName:kReloadAccountTableNotification
+                                                                        object:nil
+                                                                      userInfo:responseObject];
+                    }
+                failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                        NSLog(@"create request failed");
+                    [[NSNotificationCenter defaultCenter] postNotificationName:kAccountCreateFailedNotification
+                                                                        object:nil];
+                    }];
+        
+        [operation start];
+    });
+}
+
 - (void)executeSyncCompletedOperations {
     dispatch_async(dispatch_get_main_queue(), ^{
         
@@ -200,38 +225,38 @@ NSString * const kSDSyncEngineSyncDefaultSyncEntryAdded = @"SDSyncEngineSyncDefa
 
 
 - (void)downloadDataForRegisteredObjects:(BOOL)useUpdatedAtDate {
-    NSMutableArray *operations = [NSMutableArray array];
-    
-    for (NSString *className in self.registeredClassesToSync) {
-        NSDate *mostRecentUpdatedDate = nil;
-        if (useUpdatedAtDate) {
-            mostRecentUpdatedDate = [self mostRecentUpdatedAtDateForEntityWithName:className];
-        }
-        NSMutableURLRequest *request = [[SDAFParseAPIClient sharedClient] 
-                                        GETRequestForAllRecordsOfClass:className 
-                                        updatedAfterDate:mostRecentUpdatedDate];
-        AFHTTPRequestOperation *operation = [[SDAFParseAPIClient sharedClient] HTTPRequestOperationWithRequest:request success:^(AFHTTPRequestOperation *operation, id responseObject) {
-            if ([responseObject isKindOfClass:[NSDictionary class]]) {
-                [self writeJSONResponse:responseObject toDiskForClassWithName:className];
-            }            
-        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-            NSLog(@"Request for class %@ failed with error: %@", className, error);
-        }];
-        
-        [operations addObject:operation];
-    }
-    
-    [[SDAFParseAPIClient sharedClient] enqueueBatchOfHTTPRequestOperations:operations progressBlock:^(NSUInteger numberOfCompletedOperations, NSUInteger totalNumberOfOperations) {
-        
-    } completionBlock:^(NSArray *operations) {
-
-        if (useUpdatedAtDate) {
-            [self processJSONDataRecordsIntoCoreData];
-        } 
-//        else {
-//            [self processJSONDataRecordsForDeletion];
+//    NSMutableArray *operations = [NSMutableArray array];
+//    
+//    for (NSString *className in self.registeredClassesToSync) {
+//        NSDate *mostRecentUpdatedDate = nil;
+//        if (useUpdatedAtDate) {
+//            mostRecentUpdatedDate = [self mostRecentUpdatedAtDateForEntityWithName:className];
 //        }
-    }];
+//        NSMutableURLRequest *request = [[SDAFParseAPIClient sharedClient]
+//                                        GETRequestForAllRecordsOfClass:className 
+//                                        updatedAfterDate:mostRecentUpdatedDate];
+//        AFHTTPRequestOperation *operation = [[SDAFParseAPIClient sharedClient] HTTPRequestOperationWithRequest:request success:^(AFHTTPRequestOperation *operation, id responseObject) {
+//            if ([responseObject isKindOfClass:[NSDictionary class]]) {
+//                [self writeJSONResponse:responseObject toDiskForClassWithName:className];
+//            }            
+//        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+//            NSLog(@"Request for class %@ failed with error: %@", className, error);
+//        }];
+//        
+//        [operations addObject:operation];
+//    }
+//    
+//    [[SDAFParseAPIClient sharedClient] enqueueBatchOfHTTPRequestOperations:operations progressBlock:^(NSUInteger numberOfCompletedOperations, NSUInteger totalNumberOfOperations) {
+//        
+//    } completionBlock:^(NSArray *operations) {
+//
+//        if (useUpdatedAtDate) {
+//            [self processJSONDataRecordsIntoCoreData];
+//        } 
+////        else {
+////            [self processJSONDataRecordsForDeletion];
+////        }
+//    }];
 }
 
 - (void)processJSONDataRecordsIntoCoreData {

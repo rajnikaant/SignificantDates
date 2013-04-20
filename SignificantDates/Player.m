@@ -16,6 +16,7 @@
 @dynamic progress;
 @dynamic updatedAt;
 @dynamic writeId;
+@dynamic account;
 
 
 +(NSString*)entityName {

@@ -8,10 +8,7 @@
 #import "SDAFParseAPIClient.h"
 #import "AFJSONRequestOperation.h"
 
-static NSString * const kSDFParseAPIBaseURLString = @"https://api.parse.com/1/";
-
-static NSString * const kSDFParseAPIApplicationId = @"YOUR_APPLICATION_KEY";
-static NSString * const kSDFParseAPIKey = @"YOUR_API_KEY";
+static NSString * const kSDFParseAPIBaseURLString = @"http://localhost:3000/";
 
 @implementation SDAFParseAPIClient
 
@@ -30,11 +27,18 @@ static NSString * const kSDFParseAPIKey = @"YOUR_API_KEY";
     if (self) {
         [self registerHTTPOperationClass:[AFJSONRequestOperation class]];
         [self setParameterEncoding:AFJSONParameterEncoding];
-        [self setDefaultHeader:@"X-Parse-Application-Id" value:kSDFParseAPIApplicationId];
-        [self setDefaultHeader:@"X-Parse-REST-API-Key" value:kSDFParseAPIKey];
     }
     
     return self;
+}
+
+-(NSMutableURLRequest *)POSTRequestForAccountCreateWithEmail:(NSString*)email {
+    NSMutableURLRequest *request = nil;
+    NSDictionary *params = [NSDictionary dictionaryWithObject:email forKey:@"email"];
+    request = [self requestWithMethod:@"POST"
+                                 path:@"accounts.json"
+                           parameters:params];
+    return request;
 }
 
 - (NSMutableURLRequest *)GETRequestForClass:(NSString *)className parameters:(NSDictionary *)parameters {

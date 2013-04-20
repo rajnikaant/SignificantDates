@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model name="" userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="2057" systemVersion="12D78" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
-    <entity name="Birthday" representedClassName="Birthday" syncable="YES">
-        <attribute name="createdAt" optional="YES" attributeType="Date" syncable="YES"/>
-        <attribute name="date" optional="YES" attributeType="Date" syncable="YES"/>
-        <attribute name="facebook" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="giftIdeas" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="image" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES" syncable="YES"/>
-        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="objectId" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="syncStatus" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+    <entity name="Account" representedClassName="Account" syncable="YES">
+        <attribute name="authToken" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="clientId" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="email" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="gspid" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="updatedAt" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="writeId" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <relationship name="options" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Option" inverseName="account" inverseEntity="Option" syncable="YES"/>
+        <relationship name="players" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Player" inverseName="account" inverseEntity="Player" syncable="YES"/>
+        <relationship name="progress" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Progress" inverseName="account" inverseEntity="Progress" syncable="YES"/>
     </entity>
     <entity name="Chapter" representedClassName="Chapter" syncable="YES">
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
@@ -18,44 +17,33 @@
         <attribute name="writeId" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <relationship name="progress" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Progress" inverseName="chapter" inverseEntity="Progress" syncable="YES"/>
     </entity>
-    <entity name="Holiday" representedClassName="Holiday" syncable="YES">
-        <attribute name="createdAt" optional="YES" attributeType="Date" syncable="YES"/>
-        <attribute name="date" optional="YES" attributeType="Date" syncable="YES"/>
-        <attribute name="details" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="image" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES" syncable="YES"/>
-        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="objectId" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="observedBy" optional="YES" attributeType="Transformable" syncable="YES"/>
-        <attribute name="syncStatus" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
-        <attribute name="updatedAt" optional="YES" attributeType="Date" syncable="YES"/>
-        <attribute name="wikipediaLink" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="writeId" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
-    </entity>
     <entity name="Option" representedClassName="Option" syncable="YES">
         <attribute name="key" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="updatedAt" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="value" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="writeId" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <relationship name="account" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Account" inverseName="options" inverseEntity="Account" syncable="YES"/>
     </entity>
     <entity name="Player" representedClassName="Player" syncable="YES">
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="updatedAt" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="writeId" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <relationship name="account" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Account" inverseName="players" inverseEntity="Account" syncable="YES"/>
         <relationship name="progress" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Progress" inverseName="player" inverseEntity="Progress" syncable="YES"/>
     </entity>
     <entity name="Progress" representedClassName="Progress" syncable="YES">
         <attribute name="percent" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="updatedAt" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="writeId" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <relationship name="account" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Account" inverseName="progress" inverseEntity="Account" syncable="YES"/>
         <relationship name="chapter" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Chapter" inverseName="progress" inverseEntity="Chapter" syncable="YES"/>
         <relationship name="player" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Player" inverseName="progress" inverseEntity="Player" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Birthday" positionX="160" positionY="192" width="128" height="195"/>
-        <element name="Holiday" positionX="160" positionY="192" width="128" height="210"/>
-        <element name="Option" positionX="160" positionY="192" width="128" height="105"/>
+        <element name="Account" positionX="160" positionY="192" width="128" height="180"/>
         <element name="Chapter" positionX="160" positionY="192" width="128" height="105"/>
-        <element name="Player" positionX="160" positionY="192" width="128" height="105"/>
-        <element name="Progress" positionX="160" positionY="192" width="128" height="120"/>
+        <element name="Option" positionX="160" positionY="192" width="128" height="120"/>
+        <element name="Player" positionX="160" positionY="192" width="128" height="120"/>
+        <element name="Progress" positionX="160" positionY="192" width="128" height="135"/>
     </elements>
 </model>

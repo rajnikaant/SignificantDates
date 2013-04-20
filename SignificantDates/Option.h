@@ -10,6 +10,7 @@
 #import <CoreData/CoreData.h>
 #import "BaseModel.h"
 
+@class Account;
 
 @interface Option : BaseModel
 
@@ -17,6 +18,7 @@
 @property (nonatomic, retain) NSString * value;
 @property (nonatomic, retain) NSDate * updatedAt;
 @property (nonatomic, retain) NSNumber * writeId;
+@property (nonatomic, retain) Account * account;
 
 + (void)createWithKey:(NSString*)key andValue:(NSString*)value;
 + (void)createWithKeys:(NSArray*)key andValues:(NSArray*)values;

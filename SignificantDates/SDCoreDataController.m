@@ -8,6 +8,7 @@
 #import "SDCoreDataController.h"
 #import "Option.h"
 #import "Constants.h"
+#import "Account.h"
 
 @interface SDCoreDataController ()
 
@@ -25,6 +26,7 @@
 @synthesize managedObjectModel = _managedObjectModel;
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
 @synthesize writeId;
+@synthesize account;
 
 + (id)sharedInstance {
     static dispatch_once_t once;

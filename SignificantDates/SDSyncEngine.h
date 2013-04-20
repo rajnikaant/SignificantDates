@@ -20,5 +20,6 @@ typedef enum {
 - (void)startSync;
 - (void)setSeedData;
 - (void)loadWriteId;
+- (void)createAccountWithEmail:(NSString*)email;
 
 @end

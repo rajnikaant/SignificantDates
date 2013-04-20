@@ -82,13 +82,21 @@
     }];
 }
 
++ (NSArray*)findAll {
+    return [self findAllWithPredicate:nil
+               sortDescriptors:nil
+                         limit:-1
+                     inContext:nil];
+}
+
 + (NSArray*)findAllWithPredicate:(NSPredicate*)predicate sortDescriptors:(NSMutableArray*)sortDescriptors limit:(int)limit  inContext:(NSManagedObjectContext *)givenMoc forClass:(NSString*)className {
     NSManagedObjectContext *moc = givenMoc;
+    __block  NSArray *results;
+    
     if (!moc) {
         moc = [[SDCoreDataController sharedInstance] newManagedObjectContext];
     }
     
-    NSError *error;
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     NSEntityDescription *entity = [NSEntityDescription
                                    entityForName:className inManagedObjectContext:moc];
@@ -107,7 +115,12 @@
     }
     
     // Preloading should only happen if there is no filter query and no limit.
-    return [moc executeFetchRequest:fetchRequest error:&error];
+    [moc performBlockAndWait:^{
+        NSError *error;
+        results = [moc executeFetchRequest:fetchRequest error:&error];
+    }];
+    
+    return results;
 }
 
 + (NSArray*)findAllWithPredicate:(NSPredicate*)predicate sortDescriptors:(NSMutableArray*)sortDescriptors limit:(int)limit inContext:(NSManagedObjectContext *)givenMoc {

@@ -11,7 +11,8 @@
 
 + (SDAFParseAPIClient *)sharedClient;
 
-- (NSMutableURLRequest *)GETRequestForClass:(NSString *)className parameters:(NSDictionary *)parameters;
-- (NSMutableURLRequest *)GETRequestForAllRecordsOfClass:(NSString *)className updatedAfterDate:(NSDate *)updatedDate;
+-(NSMutableURLRequest *)POSTRequestForAccountCreateWithEmail:(NSString*)email;
+//- (NSMutableURLRequest *)GETRequestForClass:(NSString *)className parameters:(NSDictionary *)parameters;
+//- (NSMutableURLRequest *)GETRequestForAllRecordsOfClass:(NSString *)className updatedAfterDate:(NSDate *)updatedDate;
 
 @end

@@ -17,6 +17,7 @@
 + (void)createWithDictionaries:(NSArray*)dicts inContext:(NSManagedObjectContext*)givenMoc;
 
 //find
++ (NSArray*)findAll;
 + (NSArray*)findAllWithPredicate:(NSPredicate*)predicate sortDescriptors:(NSMutableArray*)sortDescriptors limit:(int)limit  inContext:(NSManagedObjectContext*)givenMoc;
 + (NSManagedObject*)findFirstWithPredicate:(NSPredicate*)predicate sortDescriptors:(NSMutableArray*)sortDescriptors  inContext:(NSManagedObjectContext*)givenMoc;
 + (NSArray*)getUpdatedRecordsForClass:(NSString*)className tillWriteId:(int)currentWriteId;
