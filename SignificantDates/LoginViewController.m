@@ -12,6 +12,8 @@
 #import "Account.h"
 #import "Constants.h"
 #import "Chapter.h"
+#import "SDSyncEngine.h"
+#import "SDDateTableViewController.h"
 
 @interface LoginViewController ()
 @property (nonatomic, strong) NSManagedObjectContext *managedObjectContext;
@@ -41,6 +43,11 @@
                                                 limit:-1
                                             inContext:self.managedObjectContext];
     }];
+}
+
+-(void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    [Account deactivateCurrentInContext:self.managedObjectContext];
 }
 
 - (void)viewDidLoad
@@ -87,10 +94,7 @@
         cell = [[AccountTableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:CellIdentifier];
     }
     
-    NSLog(@"num accounts %i, object at index %i", [self.accounts count], indexPath.row);
     Account *account = ((Account*)[self.accounts objectAtIndex:indexPath.row]);
-    NSLog(@"is NUll = %@", (!account) ? @"YES" : @"NO");
-    NSLog(@"Account Email %@", account.email);
     [cell.accountName setText:account.email];
     
     return cell;
@@ -100,6 +104,11 @@
     return ([self.accounts count] > 0 ? @"Existing Accounts" : @"No Accounts Available");
 }
 
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    Account *selectedAccount = [self.accounts objectAtIndex:indexPath.row];
+    [selectedAccount setActiveInContext:self.managedObjectContext];
+}
+
 - (void)reloadDisplayedAccounts {
     [self dismissViewControllerAnimated:YES completion:nil];
     
@@ -107,6 +116,16 @@
         [self reloadAccounts];
         [self.accountsTableView reloadData];
 //    });
+}
+
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    if ([segue.identifier isEqualToString:@"ShowChaptersViewSegue"]) {
+        SDDateTableViewController *tableViewController = segue.destinationViewController;
+        AccountTableViewCell *cell = (AccountTableViewCell*)sender;
+        NSIndexPath *indexPath = [self.accountsTableView indexPathForCell:cell];
+        Account *selectedAccount = [self.accounts objectAtIndex:indexPath.row];
+        tableViewController.managedObjectId = selectedAccount.objectID;
+    }
 }
 
 @end

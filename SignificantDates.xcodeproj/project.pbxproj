@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		5A5B3243171BD547003E2B6B /* Progress.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A5B3242171BD547003E2B6B /* Progress.m */; };
 		5A5B3246171BD548003E2B6B /* Chapter.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A5B3245171BD547003E2B6B /* Chapter.m */; };
-		5A5B3249171BD548003E2B6B /* Player.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A5B3248171BD548003E2B6B /* Player.m */; };
 		5A5B324C171BD5AE003E2B6B /* BaseModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A5B324B171BD5AE003E2B6B /* BaseModel.m */; };
 		5A5B325F171FC403003E2B6B /* LoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A5B325E171FC403003E2B6B /* LoginViewController.m */; };
 		5A5B3262171FC5E1003E2B6B /* AccountTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A5B3261171FC5E1003E2B6B /* AccountTableViewCell.m */; };
@@ -81,8 +80,6 @@
 		5A5B3242171BD547003E2B6B /* Progress.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Progress.m; sourceTree = "<group>"; };
 		5A5B3244171BD547003E2B6B /* Chapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Chapter.h; sourceTree = "<group>"; };
 		5A5B3245171BD547003E2B6B /* Chapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Chapter.m; sourceTree = "<group>"; };
-		5A5B3247171BD548003E2B6B /* Player.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Player.h; sourceTree = "<group>"; };
-		5A5B3248171BD548003E2B6B /* Player.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Player.m; sourceTree = "<group>"; };
 		5A5B324A171BD5AE003E2B6B /* BaseModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BaseModel.h; sourceTree = "<group>"; };
 		5A5B324B171BD5AE003E2B6B /* BaseModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BaseModel.m; sourceTree = "<group>"; };
 		5A5B3256171D62F0003E2B6B /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
@@ -322,8 +319,6 @@
 				5A5B3267171FFDA6003E2B6B /* Account.m */,
 				5AEA834417141B5B004F4C32 /* Option.h */,
 				5AEA834517141B5B004F4C32 /* Option.m */,
-				5A5B3247171BD548003E2B6B /* Player.h */,
-				5A5B3248171BD548003E2B6B /* Player.m */,
 				5A5B3244171BD547003E2B6B /* Chapter.h */,
 				5A5B3245171BD547003E2B6B /* Chapter.m */,
 				5A5B3241171BD547003E2B6B /* Progress.h */,
@@ -493,7 +488,6 @@
 				5AEA834617141B5B004F4C32 /* Option.m in Sources */,
 				5A5B3243171BD547003E2B6B /* Progress.m in Sources */,
 				5A5B3246171BD548003E2B6B /* Chapter.m in Sources */,
-				5A5B3249171BD548003E2B6B /* Player.m in Sources */,
 				5A5B324C171BD5AE003E2B6B /* BaseModel.m in Sources */,
 				5A5B325F171FC403003E2B6B /* LoginViewController.m in Sources */,
 				5A5B3262171FC5E1003E2B6B /* AccountTableViewCell.m in Sources */,

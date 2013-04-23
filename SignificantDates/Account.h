@@ -20,12 +20,16 @@
 @property (nonatomic, retain) NSString * gspid;
 @property (nonatomic, retain) NSDate * updatedAt;
 @property (nonatomic, retain) NSNumber * writeId;
+@property (nonatomic, retain) NSNumber * isActive;
 
 @property (nonatomic, retain) NSSet *options;
 @property (nonatomic, retain) NSSet *players;
 @property (nonatomic, retain) NSSet *progress;
 
-+(void)createWithParams:(NSDictionary*)params;
++(Account*)createWithParams:(NSDictionary*)params;
++(Account*)findActiveInContext:(NSManagedObjectContext*)moc;
++(void)deactivateCurrentInContext:(NSManagedObjectContext*)moc;
+-(void)setActiveInContext:(NSManagedObjectContext*)moc;
 
 @end
 

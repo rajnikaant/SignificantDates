@@ -6,15 +6,16 @@
 //
 
 #import <UIKit/UIKit.h>
-
-@class Player;
+#import "Account.h"
 
 @interface SDDateTableViewController : UITableViewController
 
+@property (strong, nonatomic) NSManagedObjectID *managedObjectId;
 @property (nonatomic, strong) NSArray *chapters;
 @property (nonatomic, strong) NSArray *progresses;
-@property (nonatomic, strong) Player *defaultPlayer;
 @property (nonatomic, strong) NSString *entityName;
+@property (nonatomic, strong) Account *activeAccount;
+
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *refreshButton;
 - (IBAction)refreshButtonTouched:(id)sender;
 - (IBAction)sliderMoved:(UISlider *)slider;

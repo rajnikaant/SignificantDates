@@ -8,11 +8,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "SignificantDates/SDSyncEngine.m"
-         timestampString = "388153562.075223"
+         timestampString = "388412619.23229"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "156"
-         endingLineNumber = "156"
+         startingLineNumber = "138"
+         endingLineNumber = "138"
          landmarkName = "-createAccountWithEmail:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -21,25 +21,12 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "SignificantDates/SDSyncEngine.m"
-         timestampString = "388153562.075223"
+         timestampString = "388412619.23229"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "163"
-         endingLineNumber = "163"
+         startingLineNumber = "147"
+         endingLineNumber = "147"
          landmarkName = "-createAccountWithEmail:"
-         landmarkType = "5">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "Yes"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "SignificantDates/LoginViewController.m"
-         timestampString = "388158149.40585"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "107"
-         endingLineNumber = "107"
-         landmarkName = "-reloadDisplayedAccounts"
          landmarkType = "5">
       </FileBreakpoint>
    </FileBreakpoints>

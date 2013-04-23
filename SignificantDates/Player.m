@@ -23,4 +23,8 @@
     return @"Player";
 }
 
++(BOOL) isAccountEntity {
+    return YES;
+}
+
 @end

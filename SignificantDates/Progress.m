@@ -22,4 +22,8 @@
     return @"Progress";
 }
 
++(BOOL) isAccountEntity {
+    return YES;
+}
+
 @end

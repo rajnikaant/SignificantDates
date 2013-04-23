@@ -15,7 +15,6 @@
 #import "SDSyncEngine.h"
 #import "Chapter.h"
 #import "Progress.h"
-#import "Player.h"
 #import "Constants.h"
 
 static int sliderTagPrefix = 1000;
@@ -31,12 +30,13 @@ static int labelTagPrefix = 2000;
 
 @synthesize dateFormatter;
 @synthesize managedObjectContext;
+@synthesize managedObjectId;
 
 @synthesize entityName;
 @synthesize refreshButton;
 @synthesize chapters;
 @synthesize progresses;
-@synthesize defaultPlayer;
+@synthesize activeAccount;
 
 - (id)initWithStyle:(UITableViewStyle)style
 {
@@ -50,19 +50,18 @@ static int labelTagPrefix = 2000;
 - (void)loadRecordsFromCoreData {
     [self.managedObjectContext performBlockAndWait:^{
         [self.managedObjectContext reset];
+        
+        //active account
+        self.activeAccount = (Account*)[self.managedObjectContext objectWithID:self.managedObjectId];
+        
         //load all chapters
         self.chapters = [Chapter findAllWithPredicate:nil
                                       sortDescriptors:nil
                                                 limit:-1
                                             inContext:self.managedObjectContext];
         
-        //load default player
-        self.defaultPlayer = (Player*)[Player findFirstWithPredicate:nil
-                                            sortDescriptors:nil
-                                                  inContext:self.managedObjectContext];
-        
         //load all progress for player
-        NSPredicate *pred = [NSPredicate predicateWithFormat:@"player = %@", self.defaultPlayer];
+        NSPredicate *pred = [NSPredicate predicateWithFormat:@"account = %@", self.activeAccount];
         self.progresses = [Progress findAllWithPredicate:pred
                                          sortDescriptors:nil
                                                    limit:-1
@@ -80,6 +79,14 @@ static int labelTagPrefix = 2000;
     [self.dateFormatter setDateStyle:NSDateFormatterMediumStyle];
     
     [self loadRecordsFromCoreData];
+  
+    [[self navigationItem] setTitle:activeAccount.email];
+//    self.navigationController.navigationBar.topItem.title = @"Logout";
+//    NSLog(@"navigation items length %i", [self.navigationController.navigationBar.items count]);
+    
+//    UINavigationItem* item = [[UINavigationItem alloc] initWithTitle:@"title text"];
+//    [self.navigationController.navigationBar pushNavigationItem:item animated:YES];
+//    //activeAccount.email;
     
 }
 

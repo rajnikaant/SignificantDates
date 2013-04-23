@@ -7,12 +7,9 @@
 
 #import <Foundation/Foundation.h>
 
-@class Account;
-
 @interface SDCoreDataController : NSObject
 
 @property (atomic, retain) NSNumber *writeId;
-@property (atomic, retain) Account *account;
 
 + (SDCoreDataController*)sharedInstance;
 

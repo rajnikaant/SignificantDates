@@ -22,6 +22,10 @@
     return @"Option";
 }
 
++(BOOL) isAccountEntity {
+    return YES;
+}
+
 + (void)createWithKey:(NSString*)key andValue:(NSString*)value {
     NSMutableDictionary *option = [NSMutableDictionary dictionary];
     [option setValue:key forKey:@"key"];

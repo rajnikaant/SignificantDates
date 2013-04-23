@@ -11,7 +11,6 @@
 #import "AFHTTPRequestOperation.h"
 #import "Option.h"
 #import "Chapter.h"
-#import "Player.h"
 #import "Progress.h"
 #import "Constants.h"
 #import "Account.h"
@@ -48,7 +47,7 @@ NSString * const kSDSyncEngineSyncDefaultSyncEntryAdded = @"SDSyncEngineSyncDefa
 }
 
 - (void)loadWriteId {
-    NSNumber *writeId = [NSNumber numberWithInt:[[Option findWithKey:@"writeId"].value intValue]];
+    NSNumber *writeId = [NSNumber numberWithInt:[[Option findWithKey:DBWriteIdKey].value intValue]];
     [[SDCoreDataController sharedInstance] setWriteId:writeId];
 }
 
@@ -58,41 +57,24 @@ NSString * const kSDSyncEngineSyncDefaultSyncEntryAdded = @"SDSyncEngineSyncDefa
     BOOL defaultEntryAdded = [[standardDefaults valueForKey:kSDSyncEngineSyncDefaultSyncEntryAdded] boolValue];
     if (!defaultEntryAdded) {
         [[SDCoreDataController sharedInstance] setWriteId:[NSNumber numberWithInt:0]];
-        NSArray *keys = [NSArray arrayWithObjects:DBDataSentKey, DBWriteIdKey, nil];
-        NSArray *values = [NSArray arrayWithObjects:@"0", @"1", nil];
+        NSArray *keys = [NSArray arrayWithObjects:DBWriteIdKey, nil];
+        NSArray *values = [NSArray arrayWithObjects:@"1", nil];
         [Option createWithKeys:keys andValues:values];
         
+        NSManagedObjectContext *moc = [[SDCoreDataController sharedInstance] newManagedObjectContext];
+
         //default chapters
         int i=0;
-        NSMutableArray *chapters = [NSMutableArray array];
-        
-        NSManagedObjectContext *moc = [[SDCoreDataController sharedInstance] newManagedObjectContext];
-        
         for (i = 1; i < 9; i++) {
             NSString *chapterName = [NSString stringWithFormat:@"Chapter %i", i];
             NSDictionary *dict = [NSDictionary dictionaryWithObject:chapterName forKey:@"name"];
-            [chapters addObject:(Chapter*)[Chapter createWithDictionary:dict inContext:moc]];
-        }
-        
-        //default player
-        Player *defaultPlayer = (Player*)[Player createWithDictionary:
-                                          [NSDictionary dictionaryWithObject:@"Udit" forKey:@"name"] inContext:moc];
-        
-        //default progress
-        for (i = 1; i < 9; i++) {
-            NSNumber *number = [NSNumber numberWithInt:i*10];
-            NSDictionary *dict = [NSMutableDictionary dictionary];
-            [dict setValue:defaultPlayer forKey:@"player"];
-            [dict setValue:[chapters objectAtIndex:(i-1)] forKey:@"chapter"];
-            [dict setValue:number forKey:@"percent"];
-            [Progress createWithDictionary:dict inContext:moc];
+            [Chapter createWithDictionary:dict inContext:moc];
         }
         
         [self loadWriteId];
     }
     
     [standardDefaults setValue:@"YES" forKey:kSDSyncEngineSyncDefaultSyncEntryAdded];
-    //Holiday Names
     
 }
 
@@ -159,7 +141,9 @@ NSString * const kSDSyncEngineSyncDefaultSyncEntryAdded = @"SDSyncEngineSyncDefa
             [[SDAFParseAPIClient sharedClient]
                 HTTPRequestOperationWithRequest:request
                 success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                    //create account in DB
                     [Account createWithParams:responseObject];
+                    
                     [[NSNotificationCenter defaultCenter] postNotificationName:kReloadAccountTableNotification
                                                                         object:nil
                                                                       userInfo:responseObject];

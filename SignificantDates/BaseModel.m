@@ -27,6 +27,10 @@
     return NULL;
 }
 
++(BOOL) isAccountEntity {
+    return NO;
+}
+
 + (NSManagedObject*)createWithDictionary:(NSDictionary*)dict inContext:(NSManagedObjectContext*)givenMoc {
     NSManagedObjectContext *moc = givenMoc;
     if (!moc) {

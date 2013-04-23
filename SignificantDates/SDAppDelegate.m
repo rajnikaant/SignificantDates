@@ -9,7 +9,8 @@
 #import "SDSyncEngine.h"
 #import "Progress.h"
 #import "Chapter.h"
-#import "Player.h"
+#import "SDCoreDataController.h"
+#import "Account.h"
 
 @implementation SDAppDelegate
 
@@ -20,7 +21,6 @@
     SDSyncEngine *sharedEngine = [SDSyncEngine sharedEngine];
     
     [sharedEngine registerNSManagedObjectClassToSync:[Progress class]];
-    [sharedEngine registerNSManagedObjectClassToSync:[Player class]];
     [sharedEngine registerNSManagedObjectClassToSync:[Chapter class]];
     [sharedEngine setSeedData];
     [sharedEngine loadWriteId];
@@ -44,7 +44,14 @@
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
-    [[SDSyncEngine sharedEngine] startSync];
+    //sync if any account is present
+    NSManagedObjectContext *moc = [[SDCoreDataController sharedInstance] newManagedObjectContext];
+    NSArray *accounts = [Account findAllWithPredicate:nil
+                                      sortDescriptors:nil
+                                                limit:-1 inContext:moc];
+    if ([accounts count] > 0) {
+        [[SDSyncEngine sharedEngine] startSync];
+    }
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application

@@ -11,6 +11,7 @@
 @interface BaseModel : NSManagedObject
 
 + (NSString*)entityName;
++ (BOOL)isAccountEntity;
 
 //create
 + (NSManagedObject*)createWithDictionary:(NSDictionary*)dict inContext:(NSManagedObjectContext*)givenMoc;
