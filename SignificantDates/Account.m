@@ -35,13 +35,6 @@
 }
 
 -(void)setSeedDatainContext:(NSManagedObjectContext*)moc {
-    //add dataSent key for this account
-    NSMutableDictionary *option = [NSMutableDictionary dictionary];
-    [option setValue:DBDataSentKey forKey:@"key"];
-    [option setValue:@"1" forKey:@"value"];
-    [option setValue:self forKey:@"account"];
-    [Option createWithDictionary:option inContext:moc];
-    
     //add default progress
     NSArray *chapters = [Chapter findAllWithPredicate:nil
                                       sortDescriptors:nil

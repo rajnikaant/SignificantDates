@@ -57,8 +57,8 @@ NSString * const kSDSyncEngineSyncDefaultSyncEntryAdded = @"SDSyncEngineSyncDefa
     BOOL defaultEntryAdded = [[standardDefaults valueForKey:kSDSyncEngineSyncDefaultSyncEntryAdded] boolValue];
     if (!defaultEntryAdded) {
         [[SDCoreDataController sharedInstance] setWriteId:[NSNumber numberWithInt:0]];
-        NSArray *keys = [NSArray arrayWithObjects:DBWriteIdKey, nil];
-        NSArray *values = [NSArray arrayWithObjects:@"1", nil];
+        NSArray *keys = [NSArray arrayWithObjects:DBWriteIdKey, DBDataSentKey, nil];
+        NSArray *values = [NSArray arrayWithObjects:@"1", @"0", nil];
         [Option createWithKeys:keys andValues:values];
         
         NSManagedObjectContext *moc = [[SDCoreDataController sharedInstance] newManagedObjectContext];
