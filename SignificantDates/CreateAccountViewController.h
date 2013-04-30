@@ -14,6 +14,13 @@
 @property (nonatomic, strong) IBOutlet UILabel *creatingAccount;
 @property (nonatomic, strong) IBOutlet UIButton *createAccount;
 @property (nonatomic, strong) IBOutlet UIActivityIndicatorView *activityIndicator;
+
+@property (nonatomic, strong) IBOutlet UITextField *searchTextField;
+@property (nonatomic, strong) IBOutlet UILabel *searchingAccount;
+@property (nonatomic, strong) IBOutlet UIButton *searchAccount;
+@property (nonatomic, strong) IBOutlet UIActivityIndicatorView *searchActivityIndicator;
+
+
 @property (nonatomic, strong) IBOutlet UINavigationItem *navItem;
 
 -(IBAction)create:(id)sender;

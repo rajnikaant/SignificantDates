@@ -21,7 +21,6 @@
     SDSyncEngine *sharedEngine = [SDSyncEngine sharedEngine];
     
     [sharedEngine registerNSManagedObjectClassToSync:[Progress class]];
-    [sharedEngine registerNSManagedObjectClassToSync:[Chapter class]];
     [sharedEngine setSeedData];
     [sharedEngine loadWriteId];
     return YES;
@@ -50,7 +49,7 @@
                                       sortDescriptors:nil
                                                 limit:-1 inContext:moc];
     if ([accounts count] > 0) {
-        [[SDSyncEngine sharedEngine] startSync];
+        [[SDSyncEngine sharedEngine] startPostData];
     }
 }
 

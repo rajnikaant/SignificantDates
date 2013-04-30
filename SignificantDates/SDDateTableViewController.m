@@ -37,6 +37,7 @@ static int labelTagPrefix = 2000;
 @synthesize chapters;
 @synthesize progresses;
 @synthesize activeAccount;
+@synthesize animateSliders;
 
 - (id)initWithStyle:(UITableViewStyle)style
 {
@@ -60,17 +61,12 @@ static int labelTagPrefix = 2000;
                                                 limit:-1
                                             inContext:self.managedObjectContext];
         
-        //load all progress for player
-        NSPredicate *pred = [NSPredicate predicateWithFormat:@"account = %@", self.activeAccount];
-        self.progresses = [Progress findAllWithPredicate:pred
-                                         sortDescriptors:nil
-                                                   limit:-1
-                                               inContext:self.managedObjectContext];
+        self.progresses = [self.activeAccount allPogressesInContext:self.managedObjectContext];
+
     }];
 }
 
-- (void)viewDidLoad
-{
+- (void)viewDidLoad {
     [super viewDidLoad];
     
     self.managedObjectContext = [[SDCoreDataController sharedInstance] newManagedObjectContext];
@@ -81,13 +77,8 @@ static int labelTagPrefix = 2000;
     [self loadRecordsFromCoreData];
   
     [[self navigationItem] setTitle:activeAccount.email];
-//    self.navigationController.navigationBar.topItem.title = @"Logout";
-//    NSLog(@"navigation items length %i", [self.navigationController.navigationBar.items count]);
     
-//    UINavigationItem* item = [[UINavigationItem alloc] initWithTitle:@"title text"];
-//    [self.navigationController.navigationBar pushNavigationItem:item animated:YES];
-//    //activeAccount.email;
-    
+    self.animateSliders = NO;
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -97,7 +88,9 @@ static int labelTagPrefix = 2000;
     
     [[NSNotificationCenter defaultCenter] addObserverForName:SyncCompletedNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         [self loadRecordsFromCoreData];
+        self.animateSliders = YES;
         [self.tableView reloadData];
+        self.animateSliders = NO;
     }];
     [[SDSyncEngine sharedEngine] addObserver:self forKeyPath:@"syncInProgress" options:NSKeyValueObservingOptionNew context:nil];
 }
@@ -159,17 +152,22 @@ static int labelTagPrefix = 2000;
     return nil;
 }
 
--(void)updateProgress:(int)progress forChapterAtIndex:(int)chapIndex {
+-(int)updateProgress:(int)newProgress forChapterAtIndex:(int)chapIndex {
     //update the progress in memory so the rendering is correct the next time
     Chapter *chapter = [self.chapters objectAtIndex:chapIndex];
     Progress *prog = [self getProgressForChapter:chapter];
-    prog.percent = [NSNumber numberWithInt:progress];
-    prog.writeId = [SDCoreDataController sharedInstance].writeId;
+    int oldProgress = [prog.percent intValue];
+    if (newProgress > oldProgress) {
+        prog.percent = [NSNumber numberWithInt:newProgress];
+        prog.writeId = [SDCoreDataController sharedInstance].writeId;
     
-    //update the label text
-    int labelTag = labelTagPrefix + chapIndex;
-    UILabel *percentLabel = (UILabel*)[self.view viewWithTag:labelTag];
-    percentLabel.text = [NSString stringWithFormat:@"%i%%", progress];
+        //update the label text
+        int labelTag = labelTagPrefix + chapIndex;
+        UILabel *percentLabel = (UILabel*)[self.view viewWithTag:labelTag];
+        percentLabel.text = [NSString stringWithFormat:@"%i%%", newProgress];
+    }
+    
+    return ((newProgress > oldProgress) ? newProgress : oldProgress);
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -186,7 +184,7 @@ static int labelTagPrefix = 2000;
     cell.percentLabel.text = [NSString stringWithFormat:@"%@%%", [chapProg.percent stringValue]];
     cell.percentLabel.tag = labelTagPrefix + [self.chapters indexOfObject:chapter];
     
-    cell.chapProgressView.value = [chapProg.percent intValue];
+    [cell.chapProgressView setValue:[chapProg.percent intValue] animated:self.animateSliders];
     cell.chapProgressView.tag = sliderTagPrefix + [self.chapters indexOfObject:chapter];
     
     return cell;
@@ -216,7 +214,7 @@ static int labelTagPrefix = 2000;
 }
 
 - (IBAction)refreshButtonTouched:(id)sender {
-    [[SDSyncEngine sharedEngine] startSync];
+    [[SDSyncEngine sharedEngine] startPostData];
 }
 
 - (void)checkSyncStatus {
@@ -232,11 +230,11 @@ static int labelTagPrefix = 2000;
     [activityIndicator setAutoresizingMask:(UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin)];
     [activityIndicator startAnimating];
     UIBarButtonItem *activityItem = [[UIBarButtonItem alloc] initWithCustomView:activityIndicator];
-    self.navigationItem.leftBarButtonItem = activityItem;
+    self.navigationItem.rightBarButtonItem = activityItem;
 }
 
 - (void)removeActivityIndicatorFromRefreshButon {
-    self.navigationItem.leftBarButtonItem = self.refreshButton;
+    self.navigationItem.rightBarButtonItem = self.refreshButton;
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
@@ -249,16 +247,24 @@ static int labelTagPrefix = 2000;
 - (IBAction)sliderMoved:(UISlider *)slider {
     int chapIndex = slider.tag - sliderTagPrefix;
     int sliderValue = [[NSNumber numberWithFloat:slider.value] intValue];
-    [self updateProgress:sliderValue forChapterAtIndex:chapIndex];
     
-    [self.managedObjectContext performBlockAndWait:^{
-        NSError *error = nil;
-        BOOL saved = [self.managedObjectContext save:&error];
-        if (!saved) {
-            // do some real error handling
-            NSLog(@"Could not save Date due to %@", error);
-        }
-        [[SDCoreDataController sharedInstance] saveMasterContext];
-    }];
+    int finalProgress = [self updateProgress:sliderValue forChapterAtIndex:chapIndex];
+    
+    if (finalProgress == sliderValue) {
+        [self.managedObjectContext performBlockAndWait:^{
+            NSError *error = nil;
+            BOOL saved = [self.managedObjectContext save:&error];
+            if (!saved) {
+                // do some real error handling
+                NSLog(@"Could not save Date due to %@", error);
+            }
+            [[SDCoreDataController sharedInstance] saveMasterContext];
+        }];
+    } else {
+        [slider setValue:[[NSNumber numberWithInt:finalProgress] floatValue] animated:YES];
+    }
+
+    
+
 }
 @end

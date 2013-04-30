@@ -8,7 +8,7 @@
 #import "SDAFParseAPIClient.h"
 #import "AFJSONRequestOperation.h"
 
-static NSString * const kSDFParseAPIBaseURLString = @"http://localhost:3000/";
+static NSString * const kSDFParseAPIBaseURLString = @"http://192.168.1.111:3000/";
 
 @implementation SDAFParseAPIClient
 
@@ -32,37 +32,44 @@ static NSString * const kSDFParseAPIBaseURLString = @"http://localhost:3000/";
     return self;
 }
 
+-(NSMutableURLRequest *)POSTRequestForAccountSearchWithEmail:(NSString*)email {
+    NSMutableURLRequest *request = nil;
+    NSMutableDictionary *params = [NSMutableDictionary dictionaryWithObject:email forKey:@"email"];
+    [params setValue:[[[UIDevice currentDevice] identifierForVendor] UUIDString] forKey:@"ifv"];
+    request = [self requestWithMethod:@"POST"
+                                 path:@"accounts/search.json"
+                           parameters:params];
+    return request;
+}
+
 -(NSMutableURLRequest *)POSTRequestForAccountCreateWithEmail:(NSString*)email {
     NSMutableURLRequest *request = nil;
-    NSDictionary *params = [NSDictionary dictionaryWithObject:email forKey:@"email"];
+    NSMutableDictionary *params = [NSMutableDictionary dictionaryWithObject:email forKey:@"email"];
+    [params setValue:[[[UIDevice currentDevice] identifierForVendor] UUIDString] forKey:@"ifv"];
     request = [self requestWithMethod:@"POST"
                                  path:@"accounts.json"
                            parameters:params];
     return request;
 }
 
-- (NSMutableURLRequest *)GETRequestForClass:(NSString *)className parameters:(NSDictionary *)parameters {
+-(NSMutableURLRequest *)POSTRequestForSendDataWithJSONString:(NSString*)jsonString {
     NSMutableURLRequest *request = nil;
-    request = [self requestWithMethod:@"GET" path:[NSString stringWithFormat:@"classes/%@", className] parameters:parameters];
+    NSDictionary *params = [NSDictionary dictionaryWithObject:jsonString  forKey:@"accounts"];
+    request = [self requestWithMethod:@"POST"
+                                 path:@"syncs/push.json"
+                           parameters:params];
     return request;
 }
 
-- (NSMutableURLRequest *)GETRequestForAllRecordsOfClass:(NSString *)className updatedAfterDate:(NSDate *)updatedDate {
+-(NSMutableURLRequest *)GETRequestForDataWithJSONString:(NSString*)jsonString {
     NSMutableURLRequest *request = nil;
-    NSDictionary *paramters = nil;
-    if (updatedDate) {
-        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-        [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.'999Z'"];
-        [dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"GMT"]];
-        
-        NSString *jsonString = [NSString 
-                                stringWithFormat:@"{\"updatedAt\":{\"$gte\":{\"__type\":\"Date\",\"iso\":\"%@\"}}}", 
-                                [dateFormatter stringFromDate:updatedDate]];
-        
-        paramters = [NSDictionary dictionaryWithObject:jsonString forKey:@"where"];
-    }
-    
-    request = [self GETRequestForClass:className parameters:paramters];
+    NSMutableDictionary *params =
+    [NSMutableDictionary dictionaryWithObject:[[[UIDevice currentDevice] identifierForVendor] UUIDString]
+                                       forKey:@"ifv"];
+    [params setValue:jsonString forKey:@"accounts"];
+    request = [self requestWithMethod:@"GET"
+                                 path:@"syncs/recent.json"
+                           parameters:params];
     return request;
 }
 

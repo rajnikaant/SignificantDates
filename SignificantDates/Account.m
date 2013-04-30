@@ -28,6 +28,7 @@
 @dynamic options;
 @dynamic players;
 @dynamic progress;
+@dynamic serverLastSyncedWriteId;
 
 
 +(NSString*)entityName {
@@ -41,7 +42,7 @@
                                                 limit:-1
                                             inContext:moc];
     for (int i = 1; i < 9; i++) {
-        NSNumber *number = [NSNumber numberWithInt:i*10];
+        NSNumber *number = [NSNumber numberWithInt:0];
         NSDictionary *dict = [NSMutableDictionary dictionary];
         [dict setValue:self forKey:@"account"];
         [dict setValue:[chapters objectAtIndex:(i-1)] forKey:@"chapter"];
@@ -50,7 +51,21 @@
     }
 }
 
++ (BOOL) alreadyExistsWithParams:(NSDictionary*)params {
+    NSManagedObjectContext *moc = [[SDCoreDataController sharedInstance] newManagedObjectContext];
+    NSPredicate *pred = [NSPredicate predicateWithFormat:@"gspid = %@", [params valueForKey:@"gspid"]];
+    Account *acc = (Account*)[self findFirstWithPredicate:pred
+                              sortDescriptors:nil
+                                 inContext:moc];
+    return (acc != nil);
+}
+
 + (Account*)createWithParams:(NSDictionary*)params {
+
+    if ([self alreadyExistsWithParams:params]) {
+        return nil;
+    }
+    
     NSManagedObjectContext *moc = [[SDCoreDataController sharedInstance] newManagedObjectContext];
     
     //build account params
@@ -60,6 +75,7 @@
     [account setValue:[params valueForKey:@"auth_token"] forKey:@"authToken"];
     [account setValue:[params valueForKey:@"email"] forKey:@"email"];
     [account setValue:[NSNumber numberWithInt:0] forKey:@"isActive"];
+    [account setValue:[NSNumber numberWithInt:0] forKey:@"serverLastSyncedWriteId"];
     
     //save to DB
     Account *newAccount =  (Account*)[self createWithDictionary:account inContext:moc];
@@ -106,6 +122,16 @@
         }
         [[SDCoreDataController sharedInstance] saveMasterContext];
     }];
+}
+
+
+-(NSArray*)allPogressesInContext:(NSManagedObjectContext *)moc {
+    //load all progress for this account
+    NSPredicate *pred = [NSPredicate predicateWithFormat:@"account = %@", self];
+    return [Progress findAllWithPredicate:pred
+                          sortDescriptors:nil
+                                    limit:-1
+                                inContext:moc];
 }
 
 @end

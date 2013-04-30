@@ -13,6 +13,7 @@
 @implementation Chapter
 
 @dynamic name;
+@dynamic slug;
 @dynamic progress;
 @dynamic updatedAt;
 @dynamic writeId;

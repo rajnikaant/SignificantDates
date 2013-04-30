@@ -17,9 +17,11 @@ typedef enum {
 
 + (SDSyncEngine *)sharedEngine;
 - (void)registerNSManagedObjectClassToSync:(Class)aClass;
-- (void)startSync;
+- (void)startPostData;
+- (void)startGetData;
 - (void)setSeedData;
 - (void)loadWriteId;
 - (void)createAccountWithEmail:(NSString*)email;
+- (void)searchAccountWithEmail:(NSString*)email;
 
 @end

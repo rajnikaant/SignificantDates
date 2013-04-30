@@ -15,6 +15,7 @@
 @property (nonatomic, strong) NSArray *progresses;
 @property (nonatomic, strong) NSString *entityName;
 @property (nonatomic, strong) Account *activeAccount;
+@property (nonatomic) BOOL animateSliders;
 
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *refreshButton;
 - (IBAction)refreshButtonTouched:(id)sender;

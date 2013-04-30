@@ -599,10 +599,14 @@
 		5F0F65D41561FEBD004B7F34 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer: Arpit Jain (JQNA3FNRFG)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "SignificantDates/SignificantDates-Prefix.pch";
 				INFOPLIST_FILE = "SignificantDates/SignificantDates-Info.plist";
 				PRODUCT_NAME = SignificantDates;
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -610,10 +614,12 @@
 		5F0F65D51561FEBD004B7F34 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer: Arpit Jain (JQNA3FNRFG)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "SignificantDates/SignificantDates-Prefix.pch";
 				INFOPLIST_FILE = "SignificantDates/SignificantDates-Info.plist";
 				PRODUCT_NAME = SignificantDates;
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

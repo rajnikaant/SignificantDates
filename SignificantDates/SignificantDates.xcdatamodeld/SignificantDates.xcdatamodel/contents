@@ -6,6 +6,7 @@
         <attribute name="email" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="gspid" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="isActive" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="serverLastSyncedWriteId" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="updatedAt" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="writeId" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <relationship name="options" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Option" inverseName="account" inverseEntity="Option" syncable="YES"/>
@@ -13,6 +14,7 @@
     </entity>
     <entity name="Chapter" representedClassName="Chapter" syncable="YES">
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="slug" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="updatedAt" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="writeId" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <relationship name="progress" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Progress" inverseName="chapter" inverseEntity="Progress" syncable="YES"/>
@@ -32,8 +34,8 @@
         <relationship name="chapter" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Chapter" inverseName="progress" inverseEntity="Chapter" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Account" positionX="160" positionY="192" width="128" height="180"/>
-        <element name="Chapter" positionX="160" positionY="192" width="128" height="105"/>
+        <element name="Account" positionX="160" positionY="192" width="128" height="195"/>
+        <element name="Chapter" positionX="160" positionY="192" width="128" height="120"/>
         <element name="Option" positionX="160" positionY="192" width="128" height="120"/>
         <element name="Progress" positionX="160" positionY="192" width="128" height="120"/>
     </elements>

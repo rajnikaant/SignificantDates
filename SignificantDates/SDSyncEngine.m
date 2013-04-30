@@ -16,7 +16,6 @@
 #import "Account.h"
 
 NSString * const kSDSyncEngineInitialCompleteKey = @"SDSyncEngineInitialSyncCompleted";
-NSString * const kSDSyncEngineSyncCompletedNotificationName = @"SDSyncEngineSyncCompleted";
 NSString * const kSDSyncEngineSyncDefaultSyncEntryAdded = @"SDSyncEngineSyncDefaultSync";
 
 
@@ -67,7 +66,8 @@ NSString * const kSDSyncEngineSyncDefaultSyncEntryAdded = @"SDSyncEngineSyncDefa
         int i=0;
         for (i = 1; i < 9; i++) {
             NSString *chapterName = [NSString stringWithFormat:@"Chapter %i", i];
-            NSDictionary *dict = [NSDictionary dictionaryWithObject:chapterName forKey:@"name"];
+            NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObject:chapterName forKey:@"name"];
+            [dict setValue:[NSString stringWithFormat:@"chap_%i", i] forKey:@"slug"];
             [Chapter createWithDictionary:dict inContext:moc];
         }
         
@@ -78,7 +78,51 @@ NSString * const kSDSyncEngineSyncDefaultSyncEntryAdded = @"SDSyncEngineSyncDefa
     
 }
 
+- (void)getDataForRegisteredObjects {
+    //find updated records for each account
+    NSManagedObjectContext *moc = [[SDCoreDataController sharedInstance] newManagedObjectContext];
+    NSMutableArray *allAccountsInfo = [NSMutableArray array];
+    
+    NSArray *accounts = [Account findAllInContext:moc];
+    for (Account *acc in accounts) {
+        NSMutableDictionary *accountData = [NSMutableDictionary dictionary];
+        [accountData setValue:acc.gspid forKey:@"gspid"];
+        [accountData setValue:acc.clientId forKey:@"client_id"];
+        [accountData setValue:acc.authToken forKey:@"auth_token"];
+        [accountData setValue:acc.serverLastSyncedWriteId forKey:@"client_last_synced_write_id"];
+        [allAccountsInfo addObject:accountData];
+    }
+    
+    if ([allAccountsInfo count] > 0) {
+        NSError* error = nil;
+        NSData *jsonData =
+            [NSJSONSerialization dataWithJSONObject:allAccountsInfo options:nil error:&error];
+        if (!error) {
+            NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+                NSMutableURLRequest *request = [[SDAFParseAPIClient sharedClient] GETRequestForDataWithJSONString:jsonString];
+                AFHTTPRequestOperation *operation =
+                [[SDAFParseAPIClient sharedClient]
+                 HTTPRequestOperationWithRequest:request
+                 success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                     [self executeDataReceivedOperationsWithStatus:YES andResponse:responseObject];
+                 }
+                 failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                     [self executeDataReceivedOperationsWithStatus:NO andResponse:nil];
+                     NSLog(@"sync request failed %@", [error description]);
+                 }];
+                
+                [operation start];
+            });
+        }
+    }
+
+}
+
 - (void)sendDataForRegisteredObjects {
+    //array with data of all updated accounts
+    NSMutableArray *updatedAccounts = [NSMutableArray array];
+    
     //store the current writeId
     int currentWriteId = [[SDCoreDataController sharedInstance].writeId intValue];
     self.currentSyncWriteId = currentWriteId;
@@ -86,19 +130,58 @@ NSString * const kSDSyncEngineSyncDefaultSyncEntryAdded = @"SDSyncEngineSyncDefa
     //increment the writeId
     [[SDCoreDataController sharedInstance] incrementWriteId];
     
-    //get the updated list of objects since the last dataSent
-    NSDictionary *updatedRecords = [self getUpdatedRecordsSinceLastDataSentTillWriteId:currentWriteId];
-
+    //find updated records for each account
+    NSManagedObjectContext *moc = [[SDCoreDataController sharedInstance] newManagedObjectContext];
+    NSArray *accounts = [Account findAllInContext:moc];
+    for (Account *acc in accounts) {
+        NSDictionary *updatedRecords = [self getUpdatedRecordsSinceLastDataSentTillWriteId:currentWriteId
+                                                                                forAccount:acc];
+        if ([[updatedRecords allKeys] count] > 0) {
+            NSMutableDictionary *accountData = [NSMutableDictionary dictionary];
+            [accountData setValue:acc.gspid forKey:@"gspid"];
+            [accountData setValue:acc.clientId forKey:@"client_id"];
+            [accountData setValue:acc.authToken forKey:@"auth_token"];
+            [accountData setValue:updatedRecords forKey:@"records"];
+            [updatedAccounts addObject:accountData];
+        }
+    }
     
-    NSLog(@"updated records = %@",[updatedRecords description]);
-    
-    [self executeSyncCompletedOperations];
+    if ([updatedAccounts count] > 0) {
+        //prepare a json fo the dictionary
+        NSError* error = nil;
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:updatedAccounts
+                                                           options:nil
+                                                             error:&error];
+        if (!error) {
+            NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+//            NSLog(jsonString);
+            
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+                NSMutableURLRequest *request = [[SDAFParseAPIClient sharedClient] POSTRequestForSendDataWithJSONString:jsonString];
+//                [request setTimeoutInterval:10];
+                AFHTTPRequestOperation *operation =
+                [[SDAFParseAPIClient sharedClient]
+                 HTTPRequestOperationWithRequest:request
+                 success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                     [self executeDataSentOperationsWithStatus:YES];
+                 }
+                 failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                     [self executeDataSentOperationsWithStatus:NO];
+                     NSLog(@"sync request failed %@", [error description]);
+                 }];
+                
+                [operation start];
+            });
+            return;
+        }
+    }
+    [self executeDataSentOperationsWithStatus:YES];
  }
 
--(NSDictionary*)getUpdatedRecordsSinceLastDataSentTillWriteId:(int)currentWriteId {
+-(NSDictionary*)getUpdatedRecordsSinceLastDataSentTillWriteId:(int)currentWriteId forAccount:(Account*)acc {
     NSMutableDictionary *updatedRecords = [NSMutableDictionary dictionary];
     for (NSString *className in self.registeredClassesToSync) {
-        NSArray *updatedRecordsForClass = [BaseModel getUpdatedRecordsForClass:className tillWriteId:currentWriteId];
+        NSArray *updatedRecordsForClass = [BaseModel getUpdatedRecordsForClass:className tillWriteId:currentWriteId forAccount:acc];
         if ([updatedRecordsForClass count] > 0)
             [updatedRecords setValue:updatedRecordsForClass forKey:className];
     }
@@ -121,16 +204,59 @@ NSString * const kSDSyncEngineSyncDefaultSyncEntryAdded = @"SDSyncEngineSyncDefa
     }
 }
 
-- (void)startSync {
+- (void)startGetData {
     if (!self.syncInProgress) {
         [self willChangeValueForKey:@"syncInProgress"];
         _syncInProgress = YES;
         [self didChangeValueForKey:@"syncInProgress"];
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-            //[self downloadDataForRegisteredObjects:YES];
+            [self getDataForRegisteredObjects];
+        });
+    }
+}
+
+- (void)startPostData {
+    if (!self.syncInProgress) {
+        [self willChangeValueForKey:@"syncInProgress"];
+        _syncInProgress = YES;
+        [self didChangeValueForKey:@"syncInProgress"];
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
             [self sendDataForRegisteredObjects];
         });
     }
+}
+
+- (void)searchAccountWithEmail:(NSString *)email {
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        NSMutableURLRequest *request = [[SDAFParseAPIClient sharedClient] POSTRequestForAccountSearchWithEmail:email];
+        AFHTTPRequestOperation *operation =
+        [[SDAFParseAPIClient sharedClient]
+         HTTPRequestOperationWithRequest:request
+         success:^(AFHTTPRequestOperation *operation, id responseObject) {
+             NSLog(@"number of keys %i", [[responseObject allKeys] count]);
+             if ([[responseObject allKeys] count] == 0) {
+                 [[NSNotificationCenter defaultCenter] postNotificationName:kAccountSearchNoResultNotification
+                                                                     object:nil
+                                                                   userInfo:responseObject];
+             } else {
+                 //create account in DB
+                 [Account createWithParams:responseObject];
+                 
+                 [[NSNotificationCenter defaultCenter] postNotificationName:kReloadAccountTableNotification
+                                                                     object:nil
+                                                                   userInfo:responseObject];
+                 [[SDSyncEngine sharedEngine] startPostData];
+             }
+
+         }
+         failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+             NSLog(@"create request failed");
+             [[NSNotificationCenter defaultCenter] postNotificationName:kAccountSearchFailedNotification
+                                                                 object:nil];
+         }];
+        
+        [operation start];
+    });
 }
 
 - (void)createAccountWithEmail:(NSString*)email {
@@ -158,24 +284,84 @@ NSString * const kSDSyncEngineSyncDefaultSyncEntryAdded = @"SDSyncEngineSyncDefa
     });
 }
 
-- (void)executeSyncCompletedOperations {
+-(void)setSyncCompleted {
+    //save the contexts
+    [[SDCoreDataController sharedInstance] saveBackgroundContext];
+    [[SDCoreDataController sharedInstance] saveMasterContext];
+    
+    [self willChangeValueForKey:@"syncInProgress"];
+    _syncInProgress = NO;
+    [self didChangeValueForKey:@"syncInProgress"];
+}
+
+- (void)executeDataReceivedOperationsWithStatus:(BOOL)successful andResponse:(NSArray*)response {
+    NSLog(@"Data get operation complete");
+    
+    NSManagedObjectContext *moc = [[SDCoreDataController sharedInstance] backgroundManagedObjectContext];
+    BOOL newDataArrived = NO;
+
+    if (successful) {
+        //process the records
+        NSLog(@"the records are %@", [response description]);
+        
+        for (NSDictionary *accountInfo in response) {
+            newDataArrived = YES;
+            NSPredicate *pred = [NSPredicate predicateWithFormat:@"gspid = %@", [accountInfo valueForKey:@"gspid"]];
+            Account *acc = (Account*)[Account findFirstWithPredicate:pred
+                                           sortDescriptors:nil
+                                                 inContext:moc];
+            if (acc) {
+                int lastSyncedId = [[accountInfo valueForKey:@"client_last_synced_write_id"] intValue];
+                acc.serverLastSyncedWriteId = [NSNumber numberWithInt:lastSyncedId];
+                
+                NSArray *chapters = [Chapter findAllInContext:moc];
+                NSArray *accountProgresses = [acc allPogressesInContext:moc];
+                
+                NSArray *progressRecords = [[accountInfo valueForKey:@"records"] valueForKey:@"Progress"];
+                for (NSDictionary *progressRecord in progressRecords) {
+                    NSString *recSlug = [progressRecord valueForKey:@"chapter_slug"];
+                    NSPredicate *chapPred = [NSPredicate predicateWithFormat:@"slug = %@", recSlug];
+                    Chapter *recChap = [[chapters filteredArrayUsingPredicate:chapPred] objectAtIndex:0];
+                    NSPredicate *progPred = [NSPredicate predicateWithFormat:@"chapter = %@", recChap];
+                    Progress *prog = [[accountProgresses filteredArrayUsingPredicate:progPred] objectAtIndex:0];
+                    prog.percent = [NSNumber numberWithInt:[[progressRecord valueForKey:@"percent"] intValue]];
+                }
+            }
+        }
+    }
+    
+    [self setSyncCompleted];
+    
+    if (newDataArrived) {
+        NSLog(@"new data arrived");
+        [[NSNotificationCenter defaultCenter] postNotificationName:SyncCompletedNotification
+                                                            object:nil
+                                                          userInfo:nil];
+    }
+}
+
+- (void)executeDataSentOperationsWithStatus:(BOOL)successful {
+    NSLog(@"Data sent operation complete");
     dispatch_async(dispatch_get_main_queue(), ^{
-        
-        [Option setValue:[[NSNumber numberWithInt:self.currentSyncWriteId] stringValue] forKey:DBDataSentKey];
-        self.currentSyncWriteId = -1;
-        
-        [self setInitialSyncCompleted];
-        NSError *error = nil;
-        [[SDCoreDataController sharedInstance] saveBackgroundContext];
-        if (error) {
-            NSLog(@"Error saving background context after creating objects on server: %@", error);
+        //update the data sent key if successful
+        if (successful) {
+            [Option setValue:[[NSNumber numberWithInt:self.currentSyncWriteId] stringValue]
+                      forKey:DBDataSentKey];
         }
         
-        [[SDCoreDataController sharedInstance] saveMasterContext];
-        [[NSNotificationCenter defaultCenter] postNotificationName:kSDSyncEngineSyncCompletedNotificationName object:nil];
-        [self willChangeValueForKey:@"syncInProgress"];
-        _syncInProgress = NO;
-        [self didChangeValueForKey:@"syncInProgress"];
+        //unset the current sync id
+        self.currentSyncWriteId = -1;
+        
+        //previous app
+        [self setInitialSyncCompleted];
+
+        //mark sync as completed
+        [self setSyncCompleted];
+        
+        //start the get request, if data was posted successfully
+        if (successful) {
+            [self startGetData];
+        }
     });
 }
 
@@ -281,7 +467,7 @@ NSString * const kSDSyncEngineSyncDefaultSyncEntryAdded = @"SDSyncEngineSyncDefa
         }];
         
         [self deleteJSONDataRecordsForClassWithName:className];
-        [self executeSyncCompletedOperations];
+//        [self executeSyncCompletedOperations];
     }
     
     [self downloadDataForRegisteredObjects:NO];

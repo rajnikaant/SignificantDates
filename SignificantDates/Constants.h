@@ -15,5 +15,8 @@
 #define kAccountCreateFailedNotification @"AccountCreateFailedNotification"
 #define kAccountCreateSuccessNotification @"AccountCreateSuccessNotification"
 #define kReloadAccountTableNotification @"ReloadAccountTableNotification"
+#define kReloadProgressTableNotification @"ReloadProgressTableNotification"
+#define kAccountSearchFailedNotification @"AccountSearchFailedNotification"
+#define kAccountSearchNoResultNotification @"AccountSearchNoResultNotification"
 
 #endif

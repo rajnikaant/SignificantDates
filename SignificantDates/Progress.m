@@ -13,7 +13,6 @@
 
 @dynamic percent;
 @dynamic chapter;
-@dynamic player;
 @dynamic updatedAt;
 @dynamic writeId;
 @dynamic account;

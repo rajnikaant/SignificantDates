@@ -10,6 +10,8 @@
 #import "SDCoreDataController.h"
 #import "Option.h"
 #import "Constants.h"
+#import "Chapter.h"
+#include <objc/runtime.h>
 
 @implementation BaseModel
 
@@ -86,11 +88,8 @@
     }];
 }
 
-+ (NSArray*)findAll {
-    return [self findAllWithPredicate:nil
-               sortDescriptors:nil
-                         limit:-1
-                     inContext:nil];
++ (NSArray*)findAllInContext:(NSManagedObjectContext*)givenMoc {
+    return [self findAllWithPredicate:nil sortDescriptors:nil limit:-1 inContext:givenMoc];
 }
 
 + (NSArray*)findAllWithPredicate:(NSPredicate*)predicate sortDescriptors:(NSMutableArray*)sortDescriptors limit:(int)limit  inContext:(NSManagedObjectContext *)givenMoc forClass:(NSString*)className {
@@ -143,16 +142,51 @@
     }
 }
 
++ (NSDictionary*)toSyncFormat:(id)object inContext:(NSManagedObjectContext*)moc {
+    unsigned int count = 0;
+    NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+    NSArray *dontSyncProperties = [NSArray arrayWithObjects:@"writeId", @"account", @"updatedAt", nil];
+    objc_property_t *properties = class_copyPropertyList([object class], &count);
+    for( unsigned int i = 0; i < count; i++ ) {
+        objc_property_t property = properties[i];
+        const char* pName = property_getName(property);
+        NSString *propertyName = [NSString stringWithCString:pName encoding:NSUTF8StringEncoding];
+        if ([dontSyncProperties indexOfObject:propertyName] == NSNotFound) {
+            id value; 
+            if ([propertyName isEqualToString:@"chapter"]) {
+                NSManagedObject *obj = [object valueForKey:propertyName];
+                value = [obj valueForKey:@"slug"];
+            } else {
+                value = [object valueForKey:propertyName];
+            }
+            [dict setValue:value forKey:propertyName];
+        }
+    }
+    free(properties);
+    return dict;
+}
 
-+ (NSArray*)getUpdatedRecordsForClass:(NSString*)className tillWriteId:(int)currentWriteId {
++ (NSArray*)getUpdatedRecordsForClass:(NSString*)className tillWriteId:(int)currentWriteId forAccount:(Account *)acc {
     Option *dataSentOption = [Option findWithKey:DBDataSentKey];
     int dataSentTill = [dataSentOption.value intValue];
-    NSPredicate *pred = [NSPredicate predicateWithFormat:@"writeId > %i AND writeId <= %i", dataSentTill, currentWriteId];
-    return [self findAllWithPredicate:pred
-                      sortDescriptors:nil
-                                limit:-1
-                            inContext:nil
-                             forClass:className];
+    
+    NSPredicate *pred = [NSPredicate predicateWithFormat:@"writeId > %i AND writeId <= %i AND account = %@",
+                         dataSentTill, currentWriteId, acc];
+    
+    NSManagedObjectContext *moc = [[SDCoreDataController sharedInstance] newManagedObjectContext];
+    
+    NSArray *updatedCoreDataRecords = [self findAllWithPredicate:pred
+                                                 sortDescriptors:nil
+                                                           limit:-1
+                                                       inContext:moc
+                                                        forClass:className];
+    
+    NSMutableArray *updatedRecords = [NSMutableArray array];
+    for (int i = 0; i < [updatedCoreDataRecords count]; i++) {
+        [updatedRecords addObject:[self toSyncFormat:[updatedCoreDataRecords objectAtIndex:i] inContext:moc]];
+    }
+    
+    return updatedRecords;
 }
 
 @end

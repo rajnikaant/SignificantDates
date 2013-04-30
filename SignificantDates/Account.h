@@ -21,6 +21,7 @@
 @property (nonatomic, retain) NSDate * updatedAt;
 @property (nonatomic, retain) NSNumber * writeId;
 @property (nonatomic, retain) NSNumber * isActive;
+@property (nonatomic, retain) NSNumber *serverLastSyncedWriteId;
 
 @property (nonatomic, retain) NSSet *options;
 @property (nonatomic, retain) NSSet *players;
@@ -30,6 +31,7 @@
 +(Account*)findActiveInContext:(NSManagedObjectContext*)moc;
 +(void)deactivateCurrentInContext:(NSManagedObjectContext*)moc;
 -(void)setActiveInContext:(NSManagedObjectContext*)moc;
+-(NSArray*)allPogressesInContext:(NSManagedObjectContext*)moc;
 
 @end
 

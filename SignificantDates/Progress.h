@@ -16,7 +16,6 @@
 
 @property (nonatomic, retain) NSNumber * percent;
 @property (nonatomic, retain) NSManagedObject *chapter;
-@property (nonatomic, retain) NSManagedObject *player;
 @property (nonatomic, retain) NSDate * updatedAt;
 @property (nonatomic, retain) NSNumber *writeId;
 @property (nonatomic, retain) Account  *account;

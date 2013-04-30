@@ -7,6 +7,7 @@
 //
 
 #import <CoreData/CoreData.h>
+@class Account;
 
 @interface BaseModel : NSManagedObject
 
@@ -18,9 +19,9 @@
 + (void)createWithDictionaries:(NSArray*)dicts inContext:(NSManagedObjectContext*)givenMoc;
 
 //find
-+ (NSArray*)findAll;
++ (NSArray*)findAllInContext:(NSManagedObjectContext*)givenMoc;
 + (NSArray*)findAllWithPredicate:(NSPredicate*)predicate sortDescriptors:(NSMutableArray*)sortDescriptors limit:(int)limit  inContext:(NSManagedObjectContext*)givenMoc;
 + (NSManagedObject*)findFirstWithPredicate:(NSPredicate*)predicate sortDescriptors:(NSMutableArray*)sortDescriptors  inContext:(NSManagedObjectContext*)givenMoc;
-+ (NSArray*)getUpdatedRecordsForClass:(NSString*)className tillWriteId:(int)currentWriteId;
++ (NSArray*)getUpdatedRecordsForClass:(NSString*)className tillWriteId:(int)currentWriteId forAccount:(Account*)acc;
 
 @end
